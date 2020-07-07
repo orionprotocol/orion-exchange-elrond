@@ -1,0 +1,53 @@
+{
+  "name": "placeholder test for orion exchange contract",
+  "steps": [
+    {
+      "step": "setState",
+      "accounts": {
+        "''my___personal__account___address": {
+          "nonce": "0",
+          "balance": "1,000,000"
+        }
+      },
+      "newAddresses": [
+        {
+          "creatorAddress": "''my___personal__account___address",
+          "creatorNonce": "0",
+          "newAddress": "''the_______exchange______contract"
+        }
+      ]
+    },
+    {
+      "step": "scDeploy",
+      "tx": {
+        "from": "''my___personal__account___address",
+        "contractCode": "file:../output/orion-exchange-elrond.wasm",
+        "value": "0",
+        "gasLimit": "1000000",
+        "gasPrice": "0"
+      },
+      "expect": {
+        "status": "0",
+        "gas": "*",
+        "refund": "*"
+      }
+    },
+    {
+      "step": "checkState",
+      "accounts": {
+        "''my___personal__account___address": {
+          "nonce": "1",
+          "balance": "1000000"
+        },
+        "''the_______exchange______contract": {
+          "nonce": "0",
+          "balance": "0",
+          "storage": {
+            "''owner": "''my___personal__account___address"
+          },
+          "code": "file:../output/orion-exchange-elrond.wasm"
+        }
+      }
+    }
+  ]
+}

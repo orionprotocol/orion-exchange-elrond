@@ -1,0 +1,14 @@
+[package]
+name = "orion-exchange-elrond-tests"
+version = "0.1.0"
+authors = ["Willem Olding <willemolding@gmail.com>"]
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+elrond-wasm = "0.5.1"
+elrond-wasm-debug = "0.5.1"
+
+orion-exchange-elrond = { path = ".." }
