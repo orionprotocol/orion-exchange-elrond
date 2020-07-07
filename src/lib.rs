@@ -2,8 +2,13 @@
 #![no_main]
 #![allow(unused_attributes)]
 #![allow(non_snake_case)]
-
 imports!();
+
+mod order_status;
+
+use order_status::OrderStatus;
+
+type Bytes32 = [u8; 32];
 
 #[elrond_wasm_derive::contract(OrionExchangeImpl)]
 pub trait OrionExchange {
@@ -33,6 +38,14 @@ pub trait OrionExchange {
     }
 
     /*-------------------------------*/
+
+    // mapping: (order_hash: Bytes32) => (orderStatus)
+    #[storage_set("order_status")]
+    fn set_trade_status(&self, order_hash: &Bytes32, status: &OrderStatus);
+
+    #[storage_get("order_status")]
+    fn get_trade_status(&self, order_hash: &Bytes32) -> OrderStatus;
+
 
     #[init]
     fn init(&self) {
