@@ -73,7 +73,7 @@ pub trait OrionExchange {
         let caller = self.get_caller();
         let mut balance = self.get_asset_balance(&caller, ERD_ASSET_ADDRESS.into());
         *balance += payment; // this will be safely updated after the function ends according to Elrond docs
-        new_asset_deposit(&caller, ERD_ASSET_ADDRESS.into(), payment); // event
+        self.new_asset_deposit(&caller, &ERD_ASSET_ADDRESS.into(), payment); // event
     }
 
 
@@ -86,6 +86,6 @@ pub trait OrionExchange {
     /*----------  events  ----------*/
 
     #[event("0x0000000000000000000000000000000000000000000000000000000000000001")]
-    fn new_asset_deposit(user_address: &Address, asset_address: Address, amount: BigUint);
+    fn new_asset_deposit(&self, user_address: &Address, asset_address: &Address, amount: &BigUint);
     
 }
