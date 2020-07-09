@@ -1,10 +1,10 @@
 use elrond_wasm::esd_light::*;
 
 pub struct Trade {
-    filled_price: u32,
-    filled_amount: u32,
-    fee_paid: u32,
-    timestamp: u32,
+    filled_price: u64,
+    filled_amount: u64,
+    fee_paid: u64,
+    timestamp: u64,
 }
 
 // this serialization method taken from
@@ -23,10 +23,10 @@ impl Encode for Trade {
 impl Decode for Trade {
     fn dep_decode<I: Input>(input: &mut I) -> Result<Self, DecodeError> {
         Ok(Trade {
-            filled_price: u32::dep_decode(input)?,
-            filled_amount: u32::dep_decode(input)?,
-            fee_paid: u32::dep_decode(input)?,
-            timestamp: u32::dep_decode(input)?,
+            filled_price: u64::dep_decode(input)?,
+            filled_amount: u64::dep_decode(input)?,
+            fee_paid: u64::dep_decode(input)?,
+            timestamp: u64::dep_decode(input)?,
         })
     }
 }

@@ -5,6 +5,8 @@
 
 imports!();
 
+use common::require;
+
 #[elrond_wasm_derive::contract(TokenImpl)]
 pub trait Token {
     /*----------  state  ----------*/
@@ -63,9 +65,7 @@ pub trait Token {
         let caller = self.get_caller();
         let mut allowance = self.get_mut_allowance(&sender, &caller);
         // amount should not exceed allowance
-        if amount > &*allowance {
-            return sc_error!("allowance exceeded");
-        }
+        require!(amount > &*allowance, "allowance exceeded");
         *allowance -= amount; // saved automatically at the end of scope
         self.perform_transfer(sender, recipient, amount)
     }
@@ -105,9 +105,7 @@ pub trait Token {
         {
             // check if enough funds & decrease sender balance
             let mut sender_balance = self.get_mut_balance(&sender);
-            if amount > &*sender_balance {
-                return sc_error!("insufficient funds");
-            }
+            require!(amount > &*sender_balance, "insufficient funds");
             *sender_balance -= amount; // saved automatically at the end of scope
         }
         // increase recipient balance
@@ -120,11 +118,8 @@ pub trait Token {
     }
 
     fn abort_if_owner_not_caller(&self) -> Result<(), SCError> {
-        if self.get_caller() == self.get_owner() {
-            Ok(())
-        } else {
-            sc_error!("Must be called by owner")
-        }
+        require!(self.get_caller() == self.get_owner(), "Must be called by owner");
+        Ok(())
     }
 
     /*----------  events  ----------*/

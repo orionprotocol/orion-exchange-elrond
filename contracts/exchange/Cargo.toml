@@ -15,3 +15,5 @@ path = "src/lib.rs"
 elrond-wasm = "0.5.1"
 elrond-wasm-node = "0.5.1"
 elrond-wasm-derive = "0.5.1"
+
+common = { path = "../common" }
