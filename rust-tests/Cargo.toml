@@ -8,7 +8,9 @@ edition = "2018"
 path = "src/lib.rs"
 
 [dependencies]
-elrond-wasm = "0.5.1"
-elrond-wasm-debug = "0.5.1"
+elrond-wasm = "0.5.2"
+elrond-wasm-debug = "0.5.2"
+lazy_static = "1.4.0"
 
 orion-exchange-elrond = { path = "../contracts/exchange" }
+orion-token-elrond = { path = "../contracts/token" }
