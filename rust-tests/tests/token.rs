@@ -15,14 +15,18 @@ fn deploy_token_contract(mock_ref: &ArwenMockRef) -> (Contract, TxResult) {
     mock_ref.deploy_contract(&OWNER, &TOKEN, Box::new(TokenImpl::new(mock_ref.clone())))
 }
 
-#[test]
-fn check_minter_roles() {
-    let mock_ref = ArwenMockState::new();
-
+// creates two accounts and deploys token contract
+fn init(mock_ref: &ArwenMockRef) -> Contract {
     mock_ref.new_test_account(&OWNER);
     mock_ref.new_test_account(&NOTOWNER);
+    let (token, _) = deploy_token_contract(&mock_ref);   
+    token
+}
 
-    let (token, _) = deploy_token_contract(&mock_ref);
+#[test]
+fn check_initial_minter_roles() {
+    let mock_ref = ArwenMockState::new();
+    let token = init(&mock_ref);
 
     let tx1 = token
         .call("isMinter")
@@ -49,4 +53,47 @@ fn check_minter_roles() {
         false_result!(),
         "non-owner should not be minter"
     );
+}
+
+#[test]
+fn owner_can_add_minter() {
+    let mock_ref = ArwenMockState::new();
+    let token = init(&mock_ref);
+
+    let tx1 = token.call("addMinter")
+        .as_caller(&OWNER)
+        .with_arg(NOTOWNER.to_vec()) // account
+        .exec(&mock_ref);
+    assert_eq!(tx1.ok(), true);
+
+    let tx2 = token
+        .call("isMinter")
+        .as_caller(&OWNER)
+        .with_arg(NOTOWNER.to_vec()) // account
+        .exec(&mock_ref);
+    assert_eq!(tx2.ok(), true);
+    assert_eq!(
+        tx2.result_values[0],
+        true_result!(),
+        "non-owner has been added as minter"
+    );
+}
+
+#[test]
+fn minter_can_mint_tokens() {
+    let mock_ref = ArwenMockState::new();
+    let token = init(&mock_ref);
+
+    let tx1 = token.call("addMinter")
+        .as_caller(&OWNER)
+        .with_arg(NOTOWNER.to_vec()) // account
+        .exec(&mock_ref);
+    assert_eq!(tx1.ok(), true);
+
+    let tx2 = token.call("mint")
+        .as_caller(&NOTOWNER)
+        .with_arg(NOTOWNER.to_vec()) // recipient
+        .with_arg(vec![1u8]) // amount
+        .exec(&mock_ref);
+    assert_eq!(tx2.ok(), true);
 }
