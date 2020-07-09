@@ -13,6 +13,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 
 [[package]]
+name = "common"
+version = "0.1.0"
+
+[[package]]
 name = "elrond-wasm"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -67,6 +71,7 @@ checksum = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
 name = "orion-exchange-elrond"
 version = "0.1.0"
 dependencies = [
+ "common",
  "elrond-wasm",
  "elrond-wasm-derive",
  "elrond-wasm-node",

@@ -12,6 +12,9 @@ name = "orion-token-elrond"
 path = "src/lib.rs"
 
 [dependencies]
+
+common = { path = "../common" }
+
 elrond-wasm = "0.5.2"
 elrond-wasm-node = "0.5.2"
 elrond-wasm-derive = "0.5.2"

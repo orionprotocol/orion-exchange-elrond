@@ -5,11 +5,15 @@
 #![allow(unused_variables)] // TODO: Remove this once stubs are written
 imports!();
 
+use common::require;
+
 mod order_status;
 mod trade;
+mod order;
 
 use order_status::OrderStatus;
 use trade::Trade;
+use order::Order;
 
 type Bytes32 = [u8; 32];
 
@@ -49,29 +53,30 @@ pub trait OrionExchange {
 
     #[view(getBalances)]
     fn get_balances(&self, asset_addresses: &Vec<Address>, user: &Address) -> Vec<BigUint> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     #[view(getFilledAmounts)]
     fn get_filled_amounts(&self, order_hash: &Bytes32) -> Vec<(BigUint, BigUint)> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     #[view(isOrderCancelled)]
     fn is_order_cancelled(&self, order_hash: &Bytes32) -> bool {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     #[view(validateOrder)]
     fn validate_order(&self, order_hash: &Bytes32) -> bool {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     /*----------  public  ----------*/
 
     #[endpoint(depositAsset)]
     fn deposit_asset(&self, asset_address: &Address, amount: &BigUint) -> Result<(), SCError> {
-        panic!("not implemented")
+        require!(1 == 0, "");
+        unimplemented!()
     }
 
     #[payable]
@@ -86,23 +91,23 @@ pub trait OrionExchange {
 
     #[endpoint]
     fn withdraw(&self, asset_address: &Address, amount: &BigUint) -> Result<(), SCError> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     #[endpoint(fillOrders)]
     fn fill_orders(
         &self,
-        buy_order: &Bytes32,
-        sell_order: &Bytes32,
+        buy_order: &Order,
+        sell_order: &Order,
         filled_price: &BigUint,
         filled_amount: &BigUint,
     ) -> Result<(), SCError> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     #[endpoint(cancelOrder)]
     fn cancel_order(&self, order_hash: &Bytes32) -> Result<(), SCError> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     /*----------  internal  ----------*/
@@ -114,7 +119,7 @@ pub trait OrionExchange {
         amount_quote: &BigUint,
         is_buyer: bool,
     ) -> Result<(), SCError> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     fn update_trade(
@@ -123,7 +128,7 @@ pub trait OrionExchange {
         filled_amount: &BigUint,
         filled_price: &BigUint,
     ) -> Result<(), SCError> {
-        panic!("not implemented")
+        unimplemented!()
     }
 
     /*----------  events  ----------*/
