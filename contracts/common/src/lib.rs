@@ -1,4 +1,4 @@
-
+#![no_std]
 /**
  * Super hand macro, allow us to write Solidity style require!(<condition>, <error_msg>) and avoid if statements
  * 
