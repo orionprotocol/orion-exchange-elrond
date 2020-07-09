@@ -1,69 +1,52 @@
+use elrond_wasm::Address;
+use elrond_wasm_debug::*;
+use lazy_static::lazy_static;
+use orion_exchange_elrond_tests::{false_result, true_result, Contract, MockRefExtensions, TxResultExtensions};
 use orion_token_elrond::TokenImpl;
 
-use elrond_wasm_debug::*;
-use orion_exchange_elrond_tests::TestHelpers;
-
-type Address = [u8; 32]; // a bit weird to override this def but makes the tests more readable
-
-static TOKEN: Address = [0x11u8; 32];
-static OWNER: Address = [0x22u8; 32];
-static NOTOWNER: Address = [0x33u8; 32];
-
-macro_rules! true_result {
-	() => {
-		[0x1u8; 1].to_vec()
-	};
+lazy_static! {
+    static ref TOKEN: Address = Address::from_slice(&[0x11u8; 32]);
+    static ref OWNER: Address = Address::from_slice(&[0x22u8; 32]);
+    static ref NOTOWNER: Address = Address::from_slice(&[0x33u8; 32]);
 }
 
-macro_rules! false_result {
-	() => {
-		[0x0u8; 0].to_vec()
-	};
-}
-
-fn deploy_token_contract(mock_ref: &ArwenMockRef) -> TxResult {
-	mock_ref.new_test_account(&OWNER.into());
-    mock_ref.deploy_contract(
-        &OWNER.into(),
-        &TOKEN.into(),
-        Box::new(TokenImpl::new(mock_ref.clone())),
-    )
-}
-
-fn init() -> ArwenMockRef {
-	let mock_ref = ArwenMockState::new();
-	mock_ref.new_test_account(&OWNER.into());
-	mock_ref.new_test_account(&NOTOWNER.into());
-	deploy_token_contract(&mock_ref);
-	mock_ref
-}
-
-fn new_contract_call(function_name: &'static str, caller: &Address) -> TxData {
-	TxData::new_call(
-        function_name, 
-        caller.into(), 
-        TOKEN.into())
+fn deploy_token_contract(mock_ref: &ArwenMockRef) -> (Contract, TxResult) {
+    mock_ref.new_test_account(&OWNER);
+    mock_ref.deploy_contract(&OWNER, &TOKEN, Box::new(TokenImpl::new(mock_ref.clone())))
 }
 
 #[test]
 fn check_minter_roles() {
-	let mock_ref = init();
+    let mock_ref = ArwenMockState::new();
 
-	// owner is minter
-	let mut tx1 = new_contract_call("isMinter", &OWNER);
-	tx1.add_arg(OWNER.to_vec()); // account
+    mock_ref.new_test_account(&OWNER);
+    mock_ref.new_test_account(&NOTOWNER);
 
-	let tx1_result = mock_ref.execute_tx(tx1);
-	tx1_result.print();
-	assert_eq!(tx1_result.result_status, 0);
-	assert_eq!(tx1_result.result_values[0], true_result!(), "owner should be a minter after deployment");
+    let (token, _) = deploy_token_contract(&mock_ref);
 
-	// non-owner is not minter
-	let mut tx2 = new_contract_call("isMinter", &OWNER);
-	tx2.add_arg(NOTOWNER.to_vec()); // account
+    let tx1 = token
+        .call("isMinter")
+        .as_caller(&OWNER)
+        .with_arg(OWNER.to_vec()) // account
+        .exec(&mock_ref);
 
-	let tx2_result = mock_ref.execute_tx(tx2);
-	tx2_result.print();
-	assert_eq!(tx2_result.result_status, 0);
-	assert_eq!(tx2_result.result_values[0], false_result!(), "non-owner should not be minter");
-} 
+    assert_eq!(tx1.ok(), true);
+    assert_eq!(
+        tx1.result_values[0],
+        true_result!(),
+        "owner should be a minter after deployment"
+    );
+
+    let tx2 = token
+        .call("isMinter")
+        .as_caller(&OWNER)
+        .with_arg(NOTOWNER.to_vec()) // account
+        .exec(&mock_ref);
+
+    assert_eq!(tx2.ok(), true);
+    assert_eq!(
+        tx2.result_values[0],
+        false_result!(),
+        "non-owner should not be minter"
+    );
+}
