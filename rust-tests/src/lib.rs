@@ -3,8 +3,10 @@ use elrond_wasm::CallableContract;
 use elrond_wasm_debug::AccountData;
 use elrond_wasm_debug::ArwenMockRef;
 use elrond_wasm_debug::HashMap;
-use elrond_wasm_debug::TxData;
-use elrond_wasm_debug::TxResult;
+
+
+pub mod call_builder;
+pub use call_builder::{CallBuilder, Contract};
 
 pub trait TestHelpers {
     fn deploy_contract(
@@ -12,7 +14,7 @@ pub trait TestHelpers {
         caller: &Address,
         target: &Address,
         contract: Box<dyn CallableContract>,
-    ) -> TxResult;
+    ) -> Contract;
     fn new_test_account(&self, address: &Address);
 }
 
@@ -22,9 +24,9 @@ impl TestHelpers for ArwenMockRef {
         caller: &Address,
         target: &Address,
         contract: Box<dyn CallableContract>,
-    ) -> TxResult {
-        let tx1 = TxData::new_create(contract, caller.clone(), target.clone());
-        self.execute_tx(tx1)
+    ) -> Contract {
+        
+        Contract::new_deployed(self, contract, caller, target)
     }
 
     fn new_test_account(&self, address: &Address) {
@@ -38,4 +40,16 @@ impl TestHelpers for ArwenMockRef {
     }
 }
 
+#[macro_export]
+macro_rules! true_result {
+    () => {
+        [0x1u8; 1].to_vec()
+    };
+}
 
+#[macro_export]
+macro_rules! false_result {
+    () => {
+        [0x0u8; 0].to_vec()
+    };
+}
