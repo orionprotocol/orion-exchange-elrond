@@ -1,11 +1,11 @@
 use elrond_wasm::esd_light::*;
 
 pub enum OrderStatus {
-	New,
-	PartiallyFilled,
-	Filled,
-	PartiallyCancelled,
-	Cancelled
+    New,
+    PartiallyFilled,
+    Filled,
+    PartiallyCancelled,
+    Cancelled,
 }
 
 impl OrderStatus {
@@ -15,7 +15,7 @@ impl OrderStatus {
             OrderStatus::PartiallyFilled => 1,
             OrderStatus::Filled => 2,
             OrderStatus::PartiallyCancelled => 3,
-            OrderStatus::Cancelled => 4
+            OrderStatus::Cancelled => 4,
         }
     }
 
@@ -32,13 +32,13 @@ impl OrderStatus {
 }
 
 impl Encode for OrderStatus {
-	fn dep_encode_to<O: Output>(&self, dest: &mut O) {
+    fn dep_encode_to<O: Output>(&self, dest: &mut O) {
         self.to_u8().dep_encode_to(dest)
-	}
+    }
 }
 
 impl Decode for OrderStatus {
-	fn dep_decode<I: Input>(input: &mut I) -> Result<Self, DecodeError> {
+    fn dep_decode<I: Input>(input: &mut I) -> Result<Self, DecodeError> {
         OrderStatus::from_u8(u8::dep_decode(input)?)
     }
 }

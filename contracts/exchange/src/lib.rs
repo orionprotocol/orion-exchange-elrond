@@ -18,9 +18,8 @@ static ERD_ASSET_ADDRESS: [u8; 32] = [0; 32];
 
 #[elrond_wasm_derive::contract(OrionExchangeImpl)]
 pub trait OrionExchange {
-
     /*------  Contract state  -------*/
-    
+
     // Mapping: (order_hash: Bytes32) => (orderStatus)
     #[view(getOrderStatus)]
     #[storage_get("order_status")]
@@ -38,10 +37,13 @@ pub trait OrionExchange {
     // Mapping: (user_address: Address, asset_address: Address) => BigUInt
     #[view(getBalance)]
     #[storage_get_mut("asset_balance")]
-    fn get_asset_balance(&self, asset_address: &Address, user_address: &Address) -> mut_storage!(BigUint);    
+    fn get_asset_balance(
+        &self,
+        asset_address: &Address,
+        user_address: &Address,
+    ) -> mut_storage!(BigUint);
     #[storage_set("asset_balance")]
     fn set_asset_balance(&self, asset_address: &Address, user_address: &Address, balance: BigUint);
-
 
     /*----------  views  ----------*/
 
@@ -87,9 +89,14 @@ pub trait OrionExchange {
         panic!("not implemented")
     }
 
-
     #[endpoint(fillOrders)]
-    fn fill_orders(&self, buy_order: &Bytes32, sell_order: &Bytes32, filled_price: &BigUint, filled_amount: &BigUint) -> Result<(), SCError> {
+    fn fill_orders(
+        &self,
+        buy_order: &Bytes32,
+        sell_order: &Bytes32,
+        filled_price: &BigUint,
+        filled_amount: &BigUint,
+    ) -> Result<(), SCError> {
         panic!("not implemented")
     }
 
@@ -100,24 +107,49 @@ pub trait OrionExchange {
 
     /*----------  internal  ----------*/
 
-    fn update_order_balance(&self, order_hash: &Bytes32, filled_amount: &BigUint, amount_quote: &BigUint, is_buyer: bool) -> Result<(), SCError> {
+    fn update_order_balance(
+        &self,
+        order_hash: &Bytes32,
+        filled_amount: &BigUint,
+        amount_quote: &BigUint,
+        is_buyer: bool,
+    ) -> Result<(), SCError> {
         panic!("not implemented")
     }
 
-    fn update_trade(&self, order_hash: &Bytes32, filled_amount: &BigUint, filled_price: &BigUint) -> Result<(), SCError> {
-        panic!("not implemented")        
+    fn update_trade(
+        &self,
+        order_hash: &Bytes32,
+        filled_amount: &BigUint,
+        filled_price: &BigUint,
+    ) -> Result<(), SCError> {
+        panic!("not implemented")
     }
 
     /*----------  events  ----------*/
 
     #[event("0x0000000000000000000000000000000000000000000000000000000000000001")]
     fn new_asset_deposit(&self, user_address: &Address, asset_address: &Address, amount: &BigUint);
-    
+
     #[event("0x0000000000000000000000000000000000000000000000000000000000000002")]
-    fn new_asset_withdrawl(&self, user_address: &Address, asset_address: &Address, amount: &BigUint);
-    
+    fn new_asset_withdrawl(
+        &self,
+        user_address: &Address,
+        asset_address: &Address,
+        amount: &BigUint,
+    );
+
     #[event("0x0000000000000000000000000000000000000000000000000000000000000003")]
-    fn new_trade(&self, buyer: &Address, seller: &Address, base_asset: &Address, quote_asset: &Address, filled_price: &BigUint, filled_amount: &BigUint, amount_quote: &BigUint);
+    fn new_trade(
+        &self,
+        buyer: &Address,
+        seller: &Address,
+        base_asset: &Address,
+        quote_asset: &Address,
+        filled_price: &BigUint,
+        filled_amount: &BigUint,
+        amount_quote: &BigUint,
+    );
 
     #[event("0x0000000000000000000000000000000000000000000000000000000000000004")]
     fn order_update(&self, order_hash: &Address, user: &Address, status: &OrderStatus);
@@ -125,6 +157,5 @@ pub trait OrionExchange {
     /*--------------------------------------*/
 
     #[init]
-    fn init(&self) {
-    }
+    fn init(&self) {}
 }
