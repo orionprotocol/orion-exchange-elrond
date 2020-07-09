@@ -191,6 +191,16 @@ dependencies = [
  "elrond-wasm",
  "elrond-wasm-debug",
  "orion-exchange-elrond",
+ "orion-token-elrond",
+]
+
+[[package]]
+name = "orion-token-elrond"
+version = "0.1.0"
+dependencies = [
+ "elrond-wasm",
+ "elrond-wasm-derive",
+ "elrond-wasm-node",
 ]
 
 [[package]]

@@ -12,3 +12,4 @@ elrond-wasm = "0.5.1"
 elrond-wasm-debug = "0.5.1"
 
 orion-exchange-elrond = { path = "../contracts/exchange" }
+orion-token-elrond = { path = "../contracts/token" }
