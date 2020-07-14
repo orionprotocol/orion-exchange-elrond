@@ -57,23 +57,10 @@ pub trait Token {
 
     #[endpoint(transferFrom)]
     fn transfer_from(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> Result<(), SCError> {
-        
-        // get caller
         let caller = self.get_caller();
-
-
-        // load allowance
         let mut allowance = self.get_mut_allowance(sender, &caller);
-
-        // amount should not exceed allowance
-        if amount > &*allowance {
-            return sc_error!("allowance exceeded");
-        }
-
-        // update allowance
+        require!(amount <= &*allowance, "allowance exceeded");
         *allowance -= amount; // saved automatically at the end of scope
-
-        // transfer
         self.perform_transfer(sender, recipient, amount)
     }
 
@@ -104,25 +91,16 @@ pub trait Token {
     /*----------  internal  ----------*/
 
     fn perform_transfer(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> Result<(), SCError> {        
-        // check if enough funds & decrease sender balance
         {
             let mut sender_balance = self.get_mut_balance(sender);
-            if amount > &*sender_balance {
-                return sc_error!("insufficient funds");
-            }
-            
-            *sender_balance -= amount; // saved automatically at the end of scope
+            require!(amount <= &*sender_balance, "insufficient funds");
+            *sender_balance -= amount;
         }
-
-        // increase recipient balance
         {
             let mut recipient_balance = self.get_mut_balance(&recipient);
-            *recipient_balance += amount; // saved automatically at the end of scope
+            *recipient_balance += amount;
         }
-    
-        // log operation
         self.transfer_event(sender, recipient, amount);
-
         Ok(())
     }
 
