@@ -10,10 +10,12 @@ use common::require;
 mod order;
 mod order_status;
 mod trade;
+mod events;
 
 use order::Order;
 use order_status::OrderStatus;
 use trade::Trade;
+use events::*;
 
 type Bytes32 = [u8; 32];
 
@@ -89,7 +91,7 @@ pub trait OrionExchange {
         let caller = self.get_caller();
         let mut balance = self.get_asset_balance(&caller, &ERD_ASSET_ADDRESS.into());
         *balance += payment; // this will be safely updated after the function ends according to Elrond docs
-        self.new_asset_deposit(&caller, &ERD_ASSET_ADDRESS.into(), payment); // event
+        self.events().new_asset_deposit(&caller, &ERD_ASSET_ADDRESS.into(), payment); // event
         Ok(())
     }
 
@@ -137,34 +139,8 @@ pub trait OrionExchange {
     }
 
     /*----------  events  ----------*/
-
-    #[event("0x0000000000000000000000000000000000000000000000000000000000000001")]
-    fn new_asset_deposit(&self, user_address: &Address, asset_address: &Address, amount: &BigUint);
-
-    #[event("0x0000000000000000000000000000000000000000000000000000000000000002")]
-    fn new_asset_withdrawl(
-        &self,
-        user_address: &Address,
-        asset_address: &Address,
-        amount: &BigUint,
-    );
-
-    #[event("0x0000000000000000000000000000000000000000000000000000000000000003")]
-    fn new_trade(
-        &self,
-        buyer: &Address,
-        seller: &Address,
-        base_asset: &Address,
-        quote_asset: &Address,
-        filled_price: &BigUint,
-        filled_amount: &BigUint,
-        amount_quote: &BigUint,
-    );
-
-    #[event("0x0000000000000000000000000000000000000000000000000000000000000004")]
-    fn order_update(&self, order_hash: &Address, user: &Address, status: &OrderStatus);
-    // cannot use Bytes32 in event. Bug?
-    /*--------------------------------------*/
+    #[module(EventsModuleImpl)]
+    fn events(&self) -> EventsModuleImpl<T, BigInt, BigUint>;
 
     #[init]
     fn init(&self) {}

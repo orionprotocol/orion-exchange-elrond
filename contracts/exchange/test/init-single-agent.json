@@ -1,0 +1,42 @@
+{
+    "name": "init",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "''node_address__________________s1": {
+                    "nonce": "0",
+                    "balance": "1000",
+                    "storage": {},
+                    "code": ""
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "''node_address__________________s1",
+                    "creatorNonce": "0",
+                    "newAddress": "''exchange_contract_____________s1"
+                }
+            ]
+        },
+        {
+            "step": "scDeploy",
+            "txId": "deploy-1",
+            "tx": {
+                "from": "''node_address__________________s1",
+                "value": "0",
+                "contractCode": "file:../output/orion-exchange-elrond.wasm",
+                "arguments": [],
+                "gasLimit": "1,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "out": [],
+                "status": "",
+                "logs": [],
+                "gas": "*",
+                "refund": "*"
+            }
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+{
+	"name": "depost ERD",
+	"steps": [
+		{
+			"step": "externalSteps",
+			"path": "init-single-agent.json"
+		},
+		{
+		  "step": "scCall",
+		  "txId": "depositERD-1",
+		  "tx": {
+	      "from": "''node_address__________________s1",
+	      "to": "''exchange_contract_____________s1",
+	      "value": "20",
+	      "function": "depositERD",
+	      "arguments": [],
+	      "gasLimit": "100,000,000",
+	      "gasPrice": "0"
+		  },
+		  "expect": {
+	      "status": "",
+	      "gas": "*",
+	      "refund": "*",
+	      "logs": [
+         {
+            "address": "''exchange_contract_____________s1",
+            "identifier": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "topics": [
+                "''node_address__________________s1",
+                "0x0000000000000000000000000000000000000000000000000000000000000000"
+            ],
+            "data": "20"
+          }
+	      ]
+		  }
+		}
+	]
+}
