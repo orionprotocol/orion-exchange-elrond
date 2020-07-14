@@ -1,9 +1,7 @@
-use elrond_wasm::esd_light::*;
+use elrond_codec::*;
 use common::require;
 
 imports!();
-
-
 
 static INVALID_ORDER: &str = "Invalid Order Info";
 static ORDER_CANCELLED_OR_EXPIRED: &str = "Order cancelled or expired";
@@ -25,9 +23,9 @@ impl OrderSide {
 
     fn from_u8(v: u8) -> Result<Self, DecodeError> {
         match v {
-            0 => Ok(OrderSide::Buy),
-            1 => Ok(OrderSide::Sell),
-            _ => Err(DecodeError::InvalidValue),
+            0 => Result::Ok(OrderSide::Buy),
+            1 => Result::Ok(OrderSide::Sell),
+            _ => Result::Err(DecodeError::InvalidValue),
         }
     }
 }
@@ -78,7 +76,7 @@ impl Encode for Order {
 
 impl Decode for Order {
     fn dep_decode<I: Input>(input: &mut I) -> Result<Self, DecodeError> {
-        Ok(Order {
+        Result::Ok(Order {
             sender_address: Address::dep_decode(input)?,
             matcher_address: Address::dep_decode(input)?,
             base_asset: Address::dep_decode(input)?,
@@ -100,13 +98,13 @@ impl Order {
         unimplemented!()
     }
 
-    pub fn validate(&self) -> Result<(), SCError> {
+    pub fn validate(&self) -> SCResult<()> {
         unimplemented!()
     }
 
-    pub fn check_orders_info(buy_order: &Order, sell_order: &Order, sender: &Address, filled_amount: u64, filled_price: u64, current_time: u64) -> Result<(), SCError> {
-        buy_order.validate()?;
-        sell_order.validate()?;
+    pub fn check_orders_info(buy_order: &Order, sell_order: &Order, sender: &Address, filled_amount: u64, filled_price: u64, current_time: u64) -> SCResult<()> {
+        sc_try!(buy_order.validate());
+        sc_try!(sell_order.validate());
 
         require!(&buy_order.matcher_address == sender, INVALID_ORDER);
         require!(&sell_order.matcher_address == sender, INVALID_ORDER);

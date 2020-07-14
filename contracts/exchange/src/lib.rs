@@ -11,11 +11,13 @@ mod order;
 mod order_status;
 mod trade;
 mod events;
+mod transfer_proxy;
 
 use order::Order;
 use order_status::OrderStatus;
 use trade::Trade;
 use events::*;
+// use transfer_proxy::TransferFrom;
 
 type Bytes32 = [u8; 32];
 
@@ -83,8 +85,13 @@ pub trait OrionExchange {
     /*----------  public  ----------*/
 
     #[endpoint(depositAsset)]
-    fn deposit_asset(&self, asset_address: &Address, amount: &BigUint) -> Result<(), SCError> {
+    fn deposit_asset(&self, asset_address: &Address, amount: &BigUint) -> SCResult<()> {
         let caller = self.get_caller();
+
+        // let token_contract = contract_proxy!(self, asset_address, TransferFrom);
+
+        // token_contract.transferFrom(&caller, &self.get_sc_address(), amount.clone());
+
         let mut balance = self.get_asset_balance(asset_address, &caller);
         *balance += amount; // this will be safely updated after the function ends according to Elrond docs
         self.events().new_asset_deposit(&caller, asset_address, amount); // event
@@ -93,12 +100,12 @@ pub trait OrionExchange {
 
     #[payable]
     #[endpoint(depositERD)]
-    fn deposit_erd(&self, #[payment] payment: &BigUint) -> Result<(), SCError> {
+    fn deposit_erd(&self, #[payment] payment: &BigUint) -> SCResult<()> {
         self.deposit_asset(&ERD_ASSET_ADDRESS.into(), payment)
     }
 
     #[endpoint]
-    fn withdraw(&self, asset_address: &Address, amount: &BigUint) -> Result<(), SCError> {
+    fn withdraw(&self, asset_address: &Address, amount: &BigUint) -> SCResult<()> {
         let caller = self.get_caller();
         if asset_address == &(ERD_ASSET_ADDRESS.into()) {
             self.send_tx(&caller, amount, "")
@@ -118,14 +125,14 @@ pub trait OrionExchange {
         sell_order: &Order,
         filled_price: &BigUint,
         filled_amount: &BigUint,
-    ) -> Result<(), SCError> {
+    ) -> SCResult<()> {
         unimplemented!()
     }
 
     #[endpoint(cancelOrder)]
-    fn cancel_order(&self, order: &Order) -> Result<(), SCError> {
+    fn cancel_order(&self, order: &Order) -> SCResult<()> {
         let caller = self.get_caller();
-        order.validate()?;
+        sc_try!(order.validate());
         require!(order.sender_address == caller, "Not owner");
 
         let order_hash = order.get_type_value_hash();
@@ -144,6 +151,14 @@ pub trait OrionExchange {
         Ok(())
     }
 
+
+    /*----------  callbacks  ----------*/
+
+    // #[callback]
+    // fn transferFromCallback(&self, call_result: AsyncCallResult<()>) {
+    //     unimplemented!()
+    // }
+
     /*----------  internal  ----------*/
 
     fn update_order_balance(
@@ -152,7 +167,7 @@ pub trait OrionExchange {
         filled_amount: &BigUint,
         amount_quote: &BigUint,
         is_buyer: bool,
-    ) -> Result<(), SCError> {
+    ) -> SCResult<()> {
         unimplemented!()
     }
 
@@ -162,7 +177,7 @@ pub trait OrionExchange {
         order: &Order,
         filled_amount: &BigUint,
         filled_price: &BigUint,
-    ) -> Result<(), SCError> {
+    ) -> SCResult<()> {
         unimplemented!()
     }
 

@@ -1,4 +1,4 @@
-use elrond_wasm::esd_light::*;
+use elrond_codec::*;
 
 pub enum OrderStatus {
     New,

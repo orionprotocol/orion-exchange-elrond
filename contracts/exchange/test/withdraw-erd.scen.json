@@ -53,7 +53,8 @@
                 },
                 "balance": "10",
                 "code": "file:../output/orion-exchange-elrond.wasm"             
-            }
+            },
+            "+": ""
         }
     }    
 	]
