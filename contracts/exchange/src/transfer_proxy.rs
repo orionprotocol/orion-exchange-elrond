@@ -8,8 +8,3 @@
 
 imports!();
 
-#[elrond_wasm_derive::callable(TransferFromProxy)]
-pub trait TransferFrom {
-    #[callback(transferFromCallback)]
-    fn transferFrom(&self, sender: &Address, recipient: &Address, amount: BigUint);
-}

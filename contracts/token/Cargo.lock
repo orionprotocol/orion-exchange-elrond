@@ -17,21 +17,31 @@ name = "common"
 version = "0.1.0"
 
 [[package]]
-name = "elrond-wasm"
-version = "0.5.2"
+name = "elrond-codec"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ed57cb499e541bf97115722a5df3bfdc63142b6afcf07137eb44b03ef600b37"
+checksum = "cb066d3e90f9d3ac429595fbe080aa6275f2d18c5503480e93b312b3ab9a1ca4"
 dependencies = [
  "arrayvec",
- "serde",
+ "wee_alloc",
+]
+
+[[package]]
+name = "elrond-wasm"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ebbe6a65a86a5d2b587bb9d2fd7503e4b8a6b724a727dab7fde887d726fbaeb"
+dependencies = [
+ "arrayvec",
+ "elrond-codec",
  "wee_alloc",
 ]
 
 [[package]]
 name = "elrond-wasm-derive"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d68b0457898e32a6a2f49ab015866fc17e1bbe4747967457e619e7a1116d290f"
+checksum = "ecdc4507a08553cc43eadb40f3f42907e5d8fd6b63cdbab737df26cdfd49fb3c"
 dependencies = [
  "hex",
  "proc-macro2",
@@ -41,9 +51,9 @@ dependencies = [
 
 [[package]]
 name = "elrond-wasm-node"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67aced8f2b5f8fa89dc66be6d5170f82338fdf296e7c5a9c554c84701a84cf0e"
+checksum = "52b103f462ab5ccd2f7af639e3477f6c3d028505b71fa88798d04e33d9002901"
 dependencies = [
  "elrond-wasm",
  "wee_alloc",
@@ -93,26 +103,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa563d17ecb180e500da1cfd2b028310ac758de548efdd203e18f283af693f37"
 dependencies = [
  "proc-macro2",
-]
-
-[[package]]
-name = "serde"
-version = "1.0.114"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5317f7588f0a5078ee60ef675ef96735a1442132dc645eb1d12c018620ed8cd3"
-dependencies = [
- "serde_derive",
-]
-
-[[package]]
-name = "serde_derive"
-version = "1.0.114"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a0be94b04690fbaed37cddffc5c134bf537c8e3329d53e982fe04c374978f8e"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]

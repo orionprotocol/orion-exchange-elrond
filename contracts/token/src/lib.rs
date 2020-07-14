@@ -49,14 +49,14 @@ pub trait Token {
     /*----------  public  ----------*/
 
     #[endpoint]
-    fn transfer(&self, to: &Address, amount: &BigUint) -> Result<(), SCError> {
+    fn transfer(&self, to: &Address, amount: &BigUint) -> SCResult<()> {
         // the sender is the caller
         let sender = self.get_caller();
         self.perform_transfer(&sender, to, amount)
     }
 
     #[endpoint(transferFrom)]
-    fn transfer_from(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> Result<(), SCError> {
+    fn transfer_from(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> SCResult<()> {
         let caller = self.get_caller();
         let mut allowance = self.get_mut_allowance(sender, &caller);
         require!(amount <= &*allowance, "allowance exceeded");
@@ -65,7 +65,7 @@ pub trait Token {
     }
 
     #[endpoint]
-    fn approve(&self, spender: &Address, amount: &BigUint) -> Result<(), SCError> {
+    fn approve(&self, spender: &Address, amount: &BigUint) -> SCResult<()> {
         let caller = self.get_caller();
         self.set_allowance(&caller, spender, amount);
         self.approve_event(&caller, spender, amount);
@@ -73,8 +73,8 @@ pub trait Token {
     }
 
     #[endpoint]
-    fn mint(&self, recipient: &Address, amount: &BigUint) -> Result<(), SCError> {
-        self.abort_if_owner_not_caller()?;
+    fn mint(&self, recipient: &Address, amount: &BigUint) -> SCResult<()> {
+        sc_try!(self.abort_if_owner_not_caller());
         {
             let mut recipient_balance = self.get_mut_balance(&recipient);
             *recipient_balance += amount; // saved automatically at the end of scope
@@ -83,14 +83,14 @@ pub trait Token {
     }
 
     #[endpoint(addMinter)]
-    fn add_minter(&self, account: &Address) -> Result<(), SCError> {
+    fn add_minter(&self, account: &Address) -> SCResult<()> {
         self.set_is_minter(account, true);
         Ok(())
     }
 
     /*----------  internal  ----------*/
 
-    fn perform_transfer(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> Result<(), SCError> {        
+    fn perform_transfer(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> SCResult<()> {        
         {
             let mut sender_balance = self.get_mut_balance(sender);
             require!(amount <= &*sender_balance, "insufficient funds");
@@ -104,7 +104,7 @@ pub trait Token {
         Ok(())
     }
 
-    fn abort_if_owner_not_caller(&self) -> Result<(), SCError> {
+    fn abort_if_owner_not_caller(&self) -> SCResult<()> {
         require!(self.get_caller() == self.get_owner(), "Must be called by owner");
         Ok(())
     }
