@@ -7,13 +7,13 @@ imports!();
 
 use common::require;
 
+mod order;
 mod order_status;
 mod trade;
-mod order;
 
+use order::Order;
 use order_status::OrderStatus;
 use trade::Trade;
-use order::Order;
 
 type Bytes32 = [u8; 32];
 
@@ -32,7 +32,6 @@ pub trait OrionExchange {
     fn set_order_status(&self, order_hash: &Bytes32, status: &OrderStatus);
 
     // Mapping: (order_hash: Bytes32) => (Vec<Trade>)
-    #[view(getOrderTrades)]
     #[storage_get("order_trades")]
     fn get_order_trades(&self, order_hash: &Bytes32) -> Vec<Trade>;
     #[storage_set("order_trades")]
@@ -56,6 +55,11 @@ pub trait OrionExchange {
         unimplemented!()
     }
 
+    #[view(getOrderTrades)]
+    fn get_order_trades_public(&self, order: &Order) -> Vec<Trade> {
+        unimplemented!()
+    }
+
     #[view(getFilledAmounts)]
     fn get_filled_amounts(&self, order_hash: &Bytes32) -> Vec<(BigUint, BigUint)> {
         unimplemented!()
@@ -67,7 +71,7 @@ pub trait OrionExchange {
     }
 
     #[view(validateOrder)]
-    fn validate_order(&self, order_hash: &Bytes32) -> bool {
+    fn validate_order(&self, order: &Order) -> bool {
         unimplemented!()
     }
 
@@ -106,7 +110,7 @@ pub trait OrionExchange {
     }
 
     #[endpoint(cancelOrder)]
-    fn cancel_order(&self, order_hash: &Bytes32) -> Result<(), SCError> {
+    fn cancel_order(&self, order: &Order) -> Result<(), SCError> {
         unimplemented!()
     }
 
@@ -114,7 +118,7 @@ pub trait OrionExchange {
 
     fn update_order_balance(
         &self,
-        order_hash: &Bytes32,
+        order: &Order,
         filled_amount: &BigUint,
         amount_quote: &BigUint,
         is_buyer: bool,
@@ -125,6 +129,7 @@ pub trait OrionExchange {
     fn update_trade(
         &self,
         order_hash: &Bytes32,
+        order: &Order,
         filled_amount: &BigUint,
         filled_price: &BigUint,
     ) -> Result<(), SCError> {
