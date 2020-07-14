@@ -16,7 +16,7 @@
 
 #[macro_export]
 macro_rules! require {
-	($expression:expr, $error_msg:literal) => {
+	($expression:expr, $error_msg:expr) => {
 		if (($expression) == false) {
 			return sc_error!($error_msg)
 		}
