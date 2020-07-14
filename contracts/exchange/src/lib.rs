@@ -63,7 +63,7 @@ pub trait OrionExchange {
     }
 
     #[view(getFilledAmounts)]
-    fn get_filled_amounts(&self, order_hash: &Bytes32) -> Vec<(BigUint, BigUint)> {
+    fn get_filled_amounts(&self, order: &Order) -> (BigUint, BigUint) {
         unimplemented!()
     }
 
@@ -74,30 +74,41 @@ pub trait OrionExchange {
 
     #[view(validateOrder)]
     fn validate_order(&self, order: &Order) -> bool {
-        unimplemented!()
+        match order.validate() {
+            Ok(_) => true,
+            _ => false,
+        }
     }
 
     /*----------  public  ----------*/
 
     #[endpoint(depositAsset)]
     fn deposit_asset(&self, asset_address: &Address, amount: &BigUint) -> Result<(), SCError> {
-        require!(1 == 0, "");
-        unimplemented!()
+        let caller = self.get_caller();
+        let mut balance = self.get_asset_balance(asset_address, &caller);
+        *balance += amount; // this will be safely updated after the function ends according to Elrond docs
+        self.events().new_asset_deposit(&caller, asset_address, amount); // event
+        Ok(())
     }
 
     #[payable]
     #[endpoint(depositERD)]
     fn deposit_erd(&self, #[payment] payment: &BigUint) -> Result<(), SCError> {
-        let caller = self.get_caller();
-        let mut balance = self.get_asset_balance(&caller, &ERD_ASSET_ADDRESS.into());
-        *balance += payment; // this will be safely updated after the function ends according to Elrond docs
-        self.events().new_asset_deposit(&caller, &ERD_ASSET_ADDRESS.into(), payment); // event
-        Ok(())
+        self.deposit_asset(&ERD_ASSET_ADDRESS.into(), payment)
     }
 
     #[endpoint]
     fn withdraw(&self, asset_address: &Address, amount: &BigUint) -> Result<(), SCError> {
-        unimplemented!()
+        let caller = self.get_caller();
+        if asset_address == &(ERD_ASSET_ADDRESS.into()) {
+            self.send_tx(&caller, amount, "")
+        } else {
+            unimplemented!()
+        }
+        let mut balance = self.get_asset_balance(asset_address, &caller);
+        *balance -= amount;
+        self.events().new_asset_withdrawl(&caller, asset_address, amount);
+        Ok(())
     }
 
     #[endpoint(fillOrders)]
@@ -113,7 +124,24 @@ pub trait OrionExchange {
 
     #[endpoint(cancelOrder)]
     fn cancel_order(&self, order: &Order) -> Result<(), SCError> {
-        unimplemented!()
+        let caller = self.get_caller();
+        order.validate()?;
+        require!(order.sender_address == caller, "Not owner");
+
+        let order_hash = order.get_type_value_hash();
+
+        require!(!self.is_order_cancelled(&order_hash), "Order already cancelled");
+        
+        let (total_filled, _) = self.get_filled_amounts(order);
+
+        if total_filled > 0 {
+            self.set_order_status(&order_hash, &OrderStatus::PartiallyCancelled)
+        } else {
+            self.set_order_status(&order_hash, &OrderStatus::Cancelled)
+        }
+
+        self.events().order_update(&order_hash.into(), &caller, &self.get_order_status(&order_hash));
+        Ok(())
     }
 
     /*----------  internal  ----------*/
@@ -138,7 +166,7 @@ pub trait OrionExchange {
         unimplemented!()
     }
 
-    /*----------  events  ----------*/
+
     #[module(EventsModuleImpl)]
     fn events(&self) -> EventsModuleImpl<T, BigInt, BigUint>;
 

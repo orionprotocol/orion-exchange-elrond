@@ -1,0 +1,51 @@
+{
+	"name": "withdraw ERD",
+	"steps": [
+    {
+      "step": "externalSteps",
+      "path": "deposit-erd.scen.json"
+    },
+		{
+		  "step": "scCall",
+		  "txId": "withdrawERD-1",
+		  "tx": {
+	      "from": "''node_address__________________s1",
+	      "to": "''exchange_contract_____________s1",
+	      "value": "0",
+	      "function": "withdraw",
+	      "arguments": [
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "30"
+        ],
+	      "gasLimit": "100,000,000",
+	      "gasPrice": "0"
+		  },
+		  "expect": {
+	      "status": "4",
+	      "gas": "*",
+	      "refund": "*",
+	      "logs": [],
+        "message": "cannot subtract because result would be negative"
+		  }
+		},
+    {
+      "step": "checkState",
+        "accounts": {
+            "''node_address__________________s1": {
+                "nonce": "3",
+                "balance": "980",
+                "storage": "*",
+                "code": ""
+            },
+            "''exchange_contract_____________s1": {
+                "nonce": "0",
+                "storage": {
+                  "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''node_address__________________s1" : "20"
+                },
+                "balance": "20",
+                "code": "file:../output/orion-exchange-elrond.wasm"             
+            }
+        }
+    }    
+	]
+}

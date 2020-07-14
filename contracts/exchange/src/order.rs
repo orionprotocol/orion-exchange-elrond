@@ -45,18 +45,18 @@ impl Decode for OrderSide {
 }
 
 pub struct Order {
-    sender_address: Address,
-    matcher_address: Address,
-    base_asset: Address,
-    quote_asset: Address,
-    matcher_fee_asset: Address,
-    amount: u64,
-    price: u64,
-    matcher_fee: u64,
-    nonce: u64,
-    expiration: u64,
-    side: OrderSide,
-    signature: Bytes32,
+    pub sender_address: Address,
+    pub matcher_address: Address,
+    pub base_asset: Address,
+    pub quote_asset: Address,
+    pub matcher_fee_asset: Address,
+    pub amount: u64,
+    pub price: u64,
+    pub matcher_fee: u64,
+    pub nonce: u64,
+    pub expiration: u64,
+    pub side: OrderSide,
+    pub signature: Bytes32,
 }
 
 impl Encode for Order {

@@ -34,22 +34,24 @@
 	      ]
 		  }
 		},
-    {
-      "step": "checkState",
-        "accounts": {
-            "''node_address__________________s1": {
-                "nonce": "2",
-                "balance": "980",
-                "storage": {},
-                "code": ""
-            },
-            "''exchange_contract_____________s1": {
-                "nonce": "0",
-                "storage": "*",
-                "balance": "20",
-                "code": "file:../output/orion-exchange-elrond.wasm"             
+        {
+          "step": "checkState",
+            "accounts": {
+                "''node_address__________________s1": {
+                    "nonce": "2",
+                    "balance": "980",
+                    "storage": "*",
+                    "code": ""
+                },
+                "''exchange_contract_____________s1": {
+                    "nonce": "0",
+                    "storage": {
+                      "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''node_address__________________s1" : "20"
+                    },
+                    "balance": "20",
+                    "code": "file:../output/orion-exchange-elrond.wasm"             
+                }
             }
-        }
-    }    
+        }    
 	]
 }
