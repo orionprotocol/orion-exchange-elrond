@@ -5,30 +5,34 @@
 #![allow(unused_variables)] // TODO: Remove this once stubs are written
 imports!();
 
-use common::require;
+use common::{require, Bytes32};
 
+mod events;
 mod order;
 mod order_status;
 mod trade;
-mod events;
-mod transfer_proxy;
 
+use events::*;
 use order::Order;
 use order_status::OrderStatus;
 use trade::Trade;
-use events::*;
-// use transfer_proxy::TransferFrom;
-
-type Bytes32 = [u8; 32];
 
 // ERD by convention is stored at the asset address of all zero in the asset_balance map
 static ERD_ASSET_ADDRESS: [u8; 32] = [0; 32];
 
 #[elrond_wasm_derive::callable(TransferFromProxy)]
 pub trait TransferFrom {
-    fn transferFrom(&self, sender: &Address, recipient: &Address, amount: BigUint);
+    #[callback(transferFromCallback)]
+    fn transferFrom(
+        &self,
+        #[callback_arg] cb_asset_address: &Address,
+        #[callback_arg] cb_recipient_address: &Address,
+        #[callback_arg] cb_amount: BigUint,
+        sender: &Address,
+        recipient: &Address,
+        amount: BigUint
+    );
 }
-
 
 #[elrond_wasm_derive::contract(OrionExchangeImpl)]
 pub trait OrionExchange {
@@ -91,26 +95,32 @@ pub trait OrionExchange {
     /*----------  public  ----------*/
 
     #[inline]
-    fn update_balance(&self, asset_address: &Address, amount: &BigUint) -> SCResult<()> {
-        let caller = self.get_caller();
-        let mut balance = self.get_asset_balance(asset_address, &caller);
+    fn update_balance(&self, asset_address: &Address, recipient_address: &Address, amount: &BigUint) -> SCResult<()> {
+        let mut balance = self.get_asset_balance(asset_address, &recipient_address);
         *balance += amount; // this will be safely updated after the function ends according to Elrond docs
-        self.events().new_asset_deposit(&caller, asset_address, amount); // event
+        self.events()
+            .new_asset_deposit(&recipient_address, asset_address, amount); // event
         Ok(())
     }
 
     #[endpoint(depositAsset)]
     fn deposit_asset(&self, asset_address: &Address, amount: &BigUint) -> SCResult<()> {
         let token_contract = contract_proxy!(self, asset_address, TransferFrom);
-        token_contract.transferFrom(&self.get_caller(), &self.get_sc_address(), amount.clone());
+        token_contract.transferFrom(
+            asset_address,
+            &self.get_caller(),
+            amount.clone(),
+            &self.get_caller(),
+            &self.get_sc_address(),
+            amount.clone()
+        );
         Ok(())
-        // self.update_balance(asset_address, amount)
     }
 
     #[payable]
     #[endpoint(depositERD)]
     fn deposit_erd(&self, #[payment] payment: &BigUint) -> SCResult<()> {
-        self.update_balance(&ERD_ASSET_ADDRESS.into(), payment)
+        self.update_balance(&ERD_ASSET_ADDRESS.into(), &self.get_caller(), payment)
     }
 
     #[endpoint]
@@ -123,7 +133,8 @@ pub trait OrionExchange {
         }
         let mut balance = self.get_asset_balance(asset_address, &caller);
         *balance -= amount;
-        self.events().new_asset_withdrawl(&caller, asset_address, amount);
+        self.events()
+            .new_asset_withdrawl(&caller, asset_address, amount);
         Ok(())
     }
 
@@ -146,8 +157,11 @@ pub trait OrionExchange {
 
         let order_hash = order.get_type_value_hash();
 
-        require!(!self.is_order_cancelled(&order_hash), "Order already cancelled");
-        
+        require!(
+            !self.is_order_cancelled(&order_hash),
+            "Order already cancelled"
+        );
+
         let (total_filled, _) = self.get_filled_amounts(order);
 
         if total_filled > 0 {
@@ -156,16 +170,26 @@ pub trait OrionExchange {
             self.set_order_status(&order_hash, &OrderStatus::Cancelled)
         }
 
-        self.events().order_update(&order_hash.into(), &caller, &self.get_order_status(&order_hash));
+        self.events().order_update(
+            &order_hash.into(),
+            &caller,
+            &self.get_order_status(&order_hash),
+        );
         Ok(())
     }
 
-
     /*----------  callbacks  ----------*/
 
-    // #[callback]
-    // fn transferFromCallback(&self, call_result: AsyncCallResult<()>) {
-    // }
+    #[callback]
+    fn transferFromCallback(
+        &self,
+        _call_result: AsyncCallResult<()>,
+        #[callback_arg] cb_asset_address: &Address,
+        #[callback_arg] cb_recipient_address: &Address,
+        #[callback_arg] cb_amount: BigUint,
+    ) {
+        self.update_balance(cb_asset_address, cb_recipient_address, &cb_amount);
+    }
 
     /*----------  internal  ----------*/
 
@@ -188,7 +212,6 @@ pub trait OrionExchange {
     ) -> SCResult<()> {
         unimplemented!()
     }
-
 
     #[module(EventsModuleImpl)]
     fn events(&self) -> EventsModuleImpl<T, BigInt, BigUint>;

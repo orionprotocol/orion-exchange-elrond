@@ -1,4 +1,4 @@
-{
+ {
 	"name": "depost token",
 	"steps": [
 		{
@@ -33,7 +33,16 @@
 							"''exchange_contract_____________s1"
 						],
 						"data": ""
-					}
+					},
+		            {
+		                "address": "''exchange_contract_____________s1",
+		                "identifier": "0x0000000000000000000000000000000000000000000000000000000000000001",
+		                "topics": [
+							"''node_address__________________s1",
+							"''wbtc_contract_________________s1"
+		                ],
+		                "data": "200" 
+		            }
 				]
 			}
 		},

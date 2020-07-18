@@ -4,7 +4,6 @@ use crate::order_status::OrderStatus;
 
 #[elrond_wasm_derive::module(EventsModuleImpl)]
 pub trait EventsModule {
-
     #[event("0x0000000000000000000000000000000000000000000000000000000000000001")]
     fn new_asset_deposit(&self, user_address: &Address, asset_address: &Address, amount: &BigUint);
 

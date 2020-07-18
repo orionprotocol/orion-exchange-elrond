@@ -1,5 +1,5 @@
-use elrond_codec::*;
 use common::require;
+use elrond_codec::*;
 
 imports!();
 
@@ -102,7 +102,14 @@ impl Order {
         unimplemented!()
     }
 
-    pub fn check_orders_info(buy_order: &Order, sell_order: &Order, sender: &Address, filled_amount: u64, filled_price: u64, current_time: u64) -> SCResult<()> {
+    pub fn check_orders_info(
+        buy_order: &Order,
+        sell_order: &Order,
+        sender: &Address,
+        filled_amount: u64,
+        filled_price: u64,
+        current_time: u64,
+    ) -> SCResult<()> {
         sc_try!(buy_order.validate());
         sc_try!(sell_order.validate());
 
@@ -110,7 +117,10 @@ impl Order {
         require!(&sell_order.matcher_address == sender, INVALID_ORDER);
 
         require!(buy_order.base_asset == sell_order.base_asset, INVALID_ORDER);
-        require!(buy_order.quote_asset == sell_order.quote_asset, INVALID_ORDER);
+        require!(
+            buy_order.quote_asset == sell_order.quote_asset,
+            INVALID_ORDER
+        );
 
         require!(filled_amount <= buy_order.amount, INVALID_ORDER);
         require!(filled_amount <= sell_order.amount, INVALID_ORDER);
@@ -118,8 +128,14 @@ impl Order {
         require!(filled_price <= buy_order.price, INVALID_ORDER);
         require!(filled_price >= sell_order.price, INVALID_ORDER);
 
-        require!(buy_order.expiration >= current_time, ORDER_CANCELLED_OR_EXPIRED);
-        require!(sell_order.expiration >= current_time, ORDER_CANCELLED_OR_EXPIRED);
+        require!(
+            buy_order.expiration >= current_time,
+            ORDER_CANCELLED_OR_EXPIRED
+        );
+        require!(
+            sell_order.expiration >= current_time,
+            ORDER_CANCELLED_OR_EXPIRED
+        );
 
         Ok(())
     }
