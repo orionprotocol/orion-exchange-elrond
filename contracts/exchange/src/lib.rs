@@ -188,6 +188,7 @@ pub trait OrionExchange {
         #[callback_arg] cb_recipient_address: &Address,
         #[callback_arg] cb_amount: BigUint,
     ) {
+        //TODO: check if the transfer was actually approved!
         self.update_balance(cb_asset_address, cb_recipient_address, &cb_amount);
     }
 

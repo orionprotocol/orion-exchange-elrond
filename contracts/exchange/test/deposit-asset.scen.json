@@ -46,11 +46,25 @@
 				]
 			}
 		},
-		{
-			"step": "checkState",
-			"accounts": {
-				"+": ""
-			}
-		}    
+        {
+          "step": "checkState",
+            "accounts": {
+                "''node_address__________________s1": {
+                    "nonce": "2",
+                    "balance": "1000",
+                    "storage": "*",
+                    "code": ""
+                },
+                "''exchange_contract_____________s1": {
+                    "nonce": "0",
+                    "storage": {
+                      "''asset_balance|''wbtc_contract_________________s1|''node_address__________________s1" : "200"
+                    },
+                    "balance": "0",
+                    "code": "file:../output/orion-exchange-elrond.wasm"        
+                },
+                "+": ""
+            }
+        }      
 	]
 }
