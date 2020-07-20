@@ -4,22 +4,15 @@ Exchange contracts for the Orion Protocol implented in Rust to target the Elrond
 
 ## Running tests
 
-The simplest way to build the contract and run tests is with the [erdpy](https://docs.elrond.com/tools/erdpy/installing-erdpy) CLI tool. This will also take care of installing the required dependencies and Rust build tools.
+The simplest way to build the contract and run tests is with the [erdpy](https://docs.elrond.com/tools/erdpy/installing-erdpy) CLI tool. This will also take care of installing the required dependencies and Rust build tools. Ensure you have this installed before proceeding.
 
-- To build the contract WASM from the project root run:
-
-```shell
-erdpy contract build
-```
-(note this must be run before running tests)
-
-- To run the scenario tests using the ArwenVM test framework:
+- To build and run tests use the following helper script:
 
 ```shell
-erdpy contract test
+sh ./scripts/build-and-test.sh
 ```
 
-This will run the tests with the actual WASM code running in the VM used by Elrond.
+This will build the contracts and run the tests with the actual WASM code running in the VM used by Elrond.
 
 - To run the Rust tests:
 
