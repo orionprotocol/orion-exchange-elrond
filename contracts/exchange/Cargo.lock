@@ -18,9 +18,9 @@ version = "0.1.0"
 
 [[package]]
 name = "elrond-codec"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb066d3e90f9d3ac429595fbe080aa6275f2d18c5503480e93b312b3ab9a1ca4"
+checksum = "23d6d6672527d8f607b30514e6d067f3cdbc9f71273de95c01d08d8c307a4b63"
 dependencies = [
  "arrayvec",
  "wee_alloc",
@@ -28,9 +28,9 @@ dependencies = [
 
 [[package]]
 name = "elrond-wasm"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ebbe6a65a86a5d2b587bb9d2fd7503e4b8a6b724a727dab7fde887d726fbaeb"
+checksum = "dfc1cde9e6c5459cf5a87ee428d9f25c98ffae46f4187143d519b15d689f17ab"
 dependencies = [
  "arrayvec",
  "elrond-codec",
@@ -39,9 +39,9 @@ dependencies = [
 
 [[package]]
 name = "elrond-wasm-derive"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecdc4507a08553cc43eadb40f3f42907e5d8fd6b63cdbab737df26cdfd49fb3c"
+checksum = "78454d2d52af6e533308aa17d1762ff1577431766ae0a99fccce1928924d47bb"
 dependencies = [
  "hex",
  "proc-macro2",
@@ -51,9 +51,9 @@ dependencies = [
 
 [[package]]
 name = "elrond-wasm-node"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52b103f462ab5ccd2f7af639e3477f6c3d028505b71fa88798d04e33d9002901"
+checksum = "cfda0e035af71a4cd992bc5bfab0b1b59efb82c60492b31d204f6f659846da73"
 dependencies = [
  "elrond-wasm",
  "wee_alloc",
@@ -67,9 +67,9 @@ checksum = "644f9158b2f133fd50f5fb3242878846d9eb792e445c893805ff0e3824006e35"
 
 [[package]]
 name = "libc"
-version = "0.2.72"
+version = "0.2.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9f8082297d534141b30c8d39e9b1773713ab50fdbe4ff30f750d063b3bfd701"
+checksum = "bd7d4bd64732af4bf3a67f367c27df8520ad7e230c5817b8ff485864d80242b9"
 
 [[package]]
 name = "memory_units"
@@ -90,9 +90,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.18"
+version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "beae6331a816b1f65d04c45b078fd8e6c93e8071771f41b8163255bbd8d7c8fa"
+checksum = "04f5f085b5d71e2188cb8271e5da0161ad52c3f227a661a3c135fdf28e258b12"
 dependencies = [
  "unicode-xid",
 ]
@@ -108,9 +108,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.33"
+version = "1.0.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8d5d96e8cbb005d6959f119f773bfaebb5684296108fb32600c00cde305b2cd"
+checksum = "936cae2873c940d92e697597c5eee105fb570cd5689c695806f672883653349b"
 dependencies = [
  "proc-macro2",
  "quote",

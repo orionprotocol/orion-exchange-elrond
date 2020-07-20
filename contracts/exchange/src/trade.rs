@@ -12,11 +12,11 @@ pub struct Trade {
 // Surely this can be implemented as a derive macro
 
 impl Encode for Trade {
-    fn dep_encode_to<O: Output>(&self, dest: &mut O) {
-        self.filled_price.dep_encode_to(dest);
-        self.filled_amount.dep_encode_to(dest);
-        self.fee_paid.dep_encode_to(dest);
-        self.timestamp.dep_encode_to(dest);
+    fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError>  {
+        self.filled_price.dep_encode_to(dest)?;
+        self.filled_amount.dep_encode_to(dest)?;
+        self.fee_paid.dep_encode_to(dest)?;
+        self.timestamp.dep_encode_to(dest)
     }
 }
 

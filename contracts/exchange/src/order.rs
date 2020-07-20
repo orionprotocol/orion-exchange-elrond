@@ -31,7 +31,7 @@ impl OrderSide {
 }
 
 impl Encode for OrderSide {
-    fn dep_encode_to<O: Output>(&self, dest: &mut O) {
+    fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError> {
         self.to_u8().dep_encode_to(dest)
     }
 }
@@ -58,19 +58,19 @@ pub struct Order {
 }
 
 impl Encode for Order {
-    fn dep_encode_to<O: Output>(&self, dest: &mut O) {
-        self.sender_address.dep_encode_to(dest);
-        self.matcher_address.dep_encode_to(dest);
-        self.base_asset.dep_encode_to(dest);
-        self.quote_asset.dep_encode_to(dest);
-        self.matcher_fee_asset.dep_encode_to(dest);
-        self.amount.dep_encode_to(dest);
-        self.price.dep_encode_to(dest);
-        self.matcher_fee.dep_encode_to(dest);
-        self.nonce.dep_encode_to(dest);
-        self.expiration.dep_encode_to(dest);
-        self.side.dep_encode_to(dest);
-        self.signature.dep_encode_to(dest);
+    fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError> {
+        self.sender_address.dep_encode_to(dest)?;
+        self.matcher_address.dep_encode_to(dest)?;
+        self.base_asset.dep_encode_to(dest)?;
+        self.quote_asset.dep_encode_to(dest)?;
+        self.matcher_fee_asset.dep_encode_to(dest)?;
+        self.amount.dep_encode_to(dest)?;
+        self.price.dep_encode_to(dest)?;
+        self.matcher_fee.dep_encode_to(dest)?;
+        self.nonce.dep_encode_to(dest)?;
+        self.expiration.dep_encode_to(dest)?;
+        self.side.dep_encode_to(dest)?;
+        self.signature.dep_encode_to(dest)
     }
 }
 
@@ -94,12 +94,10 @@ impl Decode for Order {
 }
 
 impl Order {
-    pub fn get_type_value_hash(&self) -> Bytes32 {
-        unimplemented!()
-    }
 
     pub fn validate(&self) -> SCResult<()> {
-        unimplemented!()
+        // TODO: Actually validate order signatures
+        Ok(())
     }
 
     pub fn check_orders_info(

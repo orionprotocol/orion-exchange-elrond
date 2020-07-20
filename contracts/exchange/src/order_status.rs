@@ -32,7 +32,7 @@ impl OrderStatus {
 }
 
 impl Encode for OrderStatus {
-    fn dep_encode_to<O: Output>(&self, dest: &mut O) {
+    fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError> {
         self.to_u8().dep_encode_to(dest)
     }
 }
