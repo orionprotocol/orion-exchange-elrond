@@ -6,6 +6,29 @@
 			"path": "init-single-agent.json"
 		},
 		{
+            "step": "setState",
+            "comment": "Set up the token contract so the agent has 1000 tokens and authiorizes the exchange contract to transfer it",
+            "accounts": {
+                "''wbtc_contract_________________s1": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {
+                        "''total_supply": "1000",
+                        "''balance|''node_address__________________s1": "1000",
+                        "''allowance|''node_address__________________s1|''exchange_contract_____________s1": "1000"
+                    },
+                    "code": "file:../../token/output/orion-token-elrond.wasm"
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "''node_address__________________s1",
+                    "creatorNonce": "0",
+                    "newAddress": "''exchange_contract_____________s1"
+                }
+            ]
+        },
+		{
 			"step": "scCall",
 			"txId": "deposit_asset-1",
 			"tx": {
