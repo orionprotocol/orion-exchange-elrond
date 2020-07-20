@@ -30,7 +30,7 @@ pub trait TransferFrom {
         #[callback_arg] cb_amount: BigUint,
         sender: &Address,
         recipient: &Address,
-        amount: BigUint
+        token_amount: BigUint // really weird bug, using amount as arg name breaks it!!
     );
 }
 
@@ -104,7 +104,7 @@ pub trait OrionExchange {
     }
 
     #[endpoint(depositAsset)]
-    fn deposit_asset(&self, asset_address: &Address, amount: &BigUint) -> SCResult<()> {
+    fn deposit_asset(&self, asset_address: &Address, amount: BigUint) -> SCResult<()> {
         let token_contract = contract_proxy!(self, asset_address, TransferFrom);
         token_contract.transferFrom(
             asset_address,
@@ -112,7 +112,7 @@ pub trait OrionExchange {
             amount.clone(),
             &self.get_caller(),
             &self.get_sc_address(),
-            amount.clone()
+            amount
         );
         Ok(())
     }
@@ -183,13 +183,14 @@ pub trait OrionExchange {
     #[callback]
     fn transferFromCallback(
         &self,
-        _call_result: AsyncCallResult<()>,
+        call_result: AsyncCallResult<()>,
         #[callback_arg] cb_asset_address: &Address,
         #[callback_arg] cb_recipient_address: &Address,
         #[callback_arg] cb_amount: BigUint,
     ) {
-        //TODO: check if the transfer was actually approved!
-        self.update_balance(cb_asset_address, cb_recipient_address, &cb_amount);
+        if let AsyncCallResult::Ok(()) = call_result {
+            self.update_balance(cb_asset_address, cb_recipient_address, &cb_amount);
+        }
     }
 
     /*----------  internal  ----------*/

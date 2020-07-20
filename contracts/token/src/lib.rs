@@ -59,6 +59,7 @@ pub trait Token {
     fn transfer_from(&self, sender: &Address, recipient: &Address, amount: &BigUint) -> SCResult<()> {
         let caller = self.get_caller();
         let mut allowance = self.get_mut_allowance(sender, &caller);
+        // require!(*amount > 0, "Zero value transfers not allowed");
         require!(amount <= &*allowance, "allowance exceeded");
         *allowance -= amount; // saved automatically at the end of scope
         self.perform_transfer(sender, recipient, amount)
