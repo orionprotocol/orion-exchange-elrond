@@ -10,14 +10,14 @@ use common::{require, Bytes32};
 mod events;
 mod order;
 mod order_status;
-mod trade;
 mod token_proxy;
+mod trade;
 
 use events::*;
 use order::Order;
 use order_status::OrderStatus;
-use trade::Trade;
 use token_proxy::TransferFrom;
+use trade::Trade;
 
 // ERD by convention is stored at the asset address of all zero in the asset_balance map
 static ERD_ASSET_ADDRESS: [u8; 32] = [0; 32];
@@ -41,8 +41,14 @@ pub trait OrionExchange {
 
     // Mapping: (user_address: Address, asset_address: Address) => BigUInt
     #[view(getBalance)]
-    #[storage_get_mut("asset_balance")]
+    #[storage_get("asset_balance")]
     fn get_asset_balance(
+        &self,
+        asset_address: &Address,
+        user_address: &Address,
+    ) -> BigUint;
+    #[storage_get_mut("asset_balance")]
+    fn get_asset_balance_mut(
         &self,
         asset_address: &Address,
         user_address: &Address,
@@ -53,23 +59,39 @@ pub trait OrionExchange {
     /*----------  views  ----------*/
 
     #[view(getBalances)]
-    fn get_balances(&self, asset_addresses: &Vec<Address>, user: &Address) -> Vec<BigUint> {
-        unimplemented!()
+    fn get_balances(&self, asset_addresses: &Vec<Address>, user_address: &Address) -> Vec<BigUint> {
+        asset_addresses.iter().map(|asset_address| {
+            self.get_asset_balance(asset_address, user_address)
+        }).collect()
     }
 
     #[view(getOrderTrades)]
-    fn get_order_trades_public(&self, order: &Order) -> Vec<Trade> {
-        unimplemented!()
+    fn get_order_trades_public(&self, order: &Order) -> SCResult<Vec<Trade>> {
+        let order_hash = sc_try!(self.hash_order(order));
+        Ok(self.get_order_trades(&order_hash))
     }
 
     #[view(getFilledAmounts)]
-    fn get_filled_amounts(&self, order: &Order) -> (BigUint, BigUint) {
-        unimplemented!()
+    fn get_filled_amounts(&self, order: &Order) -> SCResult<(BigUint, BigUint)> {
+        let order_hash = sc_try!(self.hash_order(order));
+        Ok(self.get_order_trades(&order_hash).iter().fold(
+            (BigUint::zero(), BigUint::zero()),
+            |(total_filled, total_fees_paid), trade| {
+                (
+                    total_filled + trade.filled_amount.into(),
+                    total_fees_paid + trade.fee_paid.into(),
+                )
+            },
+        ))
     }
 
     #[view(isOrderCancelled)]
     fn is_order_cancelled(&self, order_hash: &Bytes32) -> bool {
-        unimplemented!()
+        let order_status = self.get_order_status(order_hash);
+        match order_status {
+            OrderStatus::Cancelled | OrderStatus::PartiallyCancelled => false,
+            _ => true,
+        }
     }
 
     #[view(validateOrder)]
@@ -91,7 +113,7 @@ pub trait OrionExchange {
             amount.clone(),
             &self.get_caller(),
             &self.get_sc_address(),
-            amount
+            amount,
         );
         Ok(())
     }
@@ -116,7 +138,7 @@ pub trait OrionExchange {
                 &self.get_caller(),
                 amount.clone(),
                 &self.get_caller(),
-                amount.clone()
+                amount.clone(),
             );
             Ok(())
         }
@@ -146,7 +168,7 @@ pub trait OrionExchange {
             "Order already cancelled"
         );
 
-        let (total_filled, _) = self.get_filled_amounts(order);
+        let (total_filled, _) = sc_try!(self.get_filled_amounts(order));
 
         if total_filled > 0 {
             self.set_order_status(&order_hash, &OrderStatus::PartiallyCancelled)
@@ -192,26 +214,33 @@ pub trait OrionExchange {
 
     /*----------  internal  ----------*/
 
-    fn asset_deposit(&self, asset_address: &Address, account_address: &Address, amount: &BigUint) -> SCResult<()> {
-        let mut balance = self.get_asset_balance(asset_address, &account_address);
+    fn asset_deposit(
+        &self,
+        asset_address: &Address,
+        account_address: &Address,
+        amount: &BigUint,
+    ) -> SCResult<()> {
+        let mut balance = self.get_asset_balance_mut(asset_address, &account_address);
         *balance += amount; // this will be safely updated after the function ends according to Elrond docs
         self.events()
             .new_asset_deposit(&account_address, asset_address, amount); // event
         Ok(())
     }
 
-    fn asset_withdrawl(&self, asset_address: &Address, account_address: &Address, amount: &BigUint) -> SCResult<()> {
-        let mut balance = self.get_asset_balance(asset_address, account_address);
+    fn asset_withdrawl(
+        &self,
+        asset_address: &Address,
+        account_address: &Address,
+        amount: &BigUint,
+    ) -> SCResult<()> {
+        let mut balance = self.get_asset_balance_mut(asset_address, account_address);
         *balance -= amount;
         self.events()
             .new_asset_withdrawl(account_address, asset_address, amount);
         Ok(())
     }
 
-    fn hash_order(
-        &self,
-        order: &Order
-    ) -> SCResult<Bytes32> {
+    fn hash_order(&self, order: &Order) -> SCResult<Bytes32> {
         // TODO: Handle encode errors
         let order_bytes = order.top_encode().unwrap();
         Ok(self.keccak256(order_bytes.as_slice()))
@@ -236,7 +265,6 @@ pub trait OrionExchange {
     ) -> SCResult<()> {
         unimplemented!()
     }
-
 
     /*---------------------------------*/
 

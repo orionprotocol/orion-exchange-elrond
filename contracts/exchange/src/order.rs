@@ -94,7 +94,6 @@ impl Decode for Order {
 }
 
 impl Order {
-
     pub fn validate(&self) -> SCResult<()> {
         // TODO: Actually validate order signatures
         Ok(())

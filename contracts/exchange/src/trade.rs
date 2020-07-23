@@ -1,10 +1,10 @@
 use elrond_codec::*;
 
 pub struct Trade {
-    filled_price: u64,
-    filled_amount: u64,
-    fee_paid: u64,
-    timestamp: u64,
+    pub filled_price: u64,
+    pub filled_amount: u64,
+    pub fee_paid: u64,
+    pub timestamp: u64,
 }
 
 // this serialization method taken from
@@ -12,7 +12,7 @@ pub struct Trade {
 // Surely this can be implemented as a derive macro
 
 impl Encode for Trade {
-    fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError>  {
+    fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError> {
         self.filled_price.dep_encode_to(dest)?;
         self.filled_amount.dep_encode_to(dest)?;
         self.fee_paid.dep_encode_to(dest)?;
