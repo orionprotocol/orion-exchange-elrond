@@ -19,6 +19,7 @@ use order_status::OrderStatus;
 use token_proxy::TransferFrom;
 use trade::Trade;
 
+
 // ERD by convention is stored at the asset address of all zero in the asset_balance map
 static ERD_ASSET_ADDRESS: [u8; 32] = [0; 32];
 
@@ -35,18 +36,14 @@ pub trait OrionExchange {
 
     // Mapping: (order_hash: Bytes32) => (Vec<Trade>)
     #[storage_get("order_trades")]
-    fn get_order_trades(&self, order_hash: &Bytes32) -> Vec<Trade>;
+    fn get_order_trades(&self, order_hash: &Bytes32) -> Vec<Trade<BigUint>>;
     #[storage_set("order_trades")]
-    fn set_order_trades(&self, order_hash: &Bytes32, trades: &Vec<Trade>);
+    fn set_order_trades(&self, order_hash: &Bytes32, trades: &Vec<Trade<BigUint>>);
 
     // Mapping: (user_address: Address, asset_address: Address) => BigUInt
     #[view(getBalance)]
     #[storage_get("asset_balance")]
-    fn get_asset_balance(
-        &self,
-        asset_address: &Address,
-        user_address: &Address,
-    ) -> BigUint;
+    fn get_asset_balance(&self, asset_address: &Address, user_address: &Address) -> BigUint;
     #[storage_get_mut("asset_balance")]
     fn get_asset_balance_mut(
         &self,
@@ -60,13 +57,14 @@ pub trait OrionExchange {
 
     #[view(getBalances)]
     fn get_balances(&self, asset_addresses: &Vec<Address>, user_address: &Address) -> Vec<BigUint> {
-        asset_addresses.iter().map(|asset_address| {
-            self.get_asset_balance(asset_address, user_address)
-        }).collect()
+        asset_addresses
+            .iter()
+            .map(|asset_address| self.get_asset_balance(asset_address, user_address))
+            .collect()
     }
 
     #[view(getOrderTrades)]
-    fn get_order_trades_public(&self, order: &Order) -> SCResult<Vec<Trade>> {
+    fn get_order_trades_public(&self, order: &Order) -> SCResult<Vec<Trade<BigUint>>> {
         let order_hash = sc_try!(self.hash_order(order));
         Ok(self.get_order_trades(&order_hash))
     }
@@ -78,8 +76,8 @@ pub trait OrionExchange {
             (BigUint::zero(), BigUint::zero()),
             |(total_filled, total_fees_paid), trade| {
                 (
-                    total_filled + trade.filled_amount.into(),
-                    total_fees_paid + trade.fee_paid.into(),
+                    total_filled + trade.filled_amount.clone(),
+                    total_fees_paid + trade.fee_paid.clone(),
                 )
             },
         ))
@@ -241,29 +239,84 @@ pub trait OrionExchange {
     }
 
     fn hash_order(&self, order: &Order) -> SCResult<Bytes32> {
-        // TODO: Handle encode errors
-        let order_bytes = order.top_encode().unwrap();
-        Ok(self.keccak256(order_bytes.as_slice()))
+        if let Result::Ok(order_bytes) = order.top_encode() {
+            Ok(self.keccak256(order_bytes.as_slice()))
+        } else {
+            sc_error!("Error serializing order")
+        }
     }
 
     fn update_order_balance(
         &self,
-        order: &Order,
-        filled_amount: &BigUint,
-        amount_quote: &BigUint,
+        order: Order,
+        filled_amount: BigUint,
+        amount_quote: BigUint,
         is_buyer: bool,
     ) -> SCResult<()> {
-        unimplemented!()
+        let user = order.sender_address;
+        let matcher_fee =
+            BigUint::from(order.matcher_fee) * filled_amount.clone() / BigUint::from(order.amount); // TODO: Check how these operations are handled
+
+        {
+            let mut quote_asset_balance = self.get_asset_balance_mut(&user, &order.quote_asset);
+            let mut base_asset_balance = self.get_asset_balance_mut(&user, &order.base_asset);
+
+            if is_buyer {
+                *quote_asset_balance -= amount_quote;
+                *base_asset_balance += filled_amount;
+            } else {
+                *quote_asset_balance += amount_quote;
+                *base_asset_balance -= filled_amount;
+            }
+        } // balances updated when scope ends
+
+        // TODO: Add handling of fee. Needs to be refinded to matcher address.
+        // Currently all trades are free.
+        // {
+        //     self.get_asset_balance_mut(&user, &order.matcher_fee_asset) -= matcher_fee;
+        // }
+
+        Ok(())
     }
 
     fn update_trade(
         &self,
         order_hash: &Bytes32,
-        order: &Order,
-        filled_amount: &BigUint,
-        filled_price: &BigUint,
+        order: Order,
+        filled_amount: BigUint,
+        filled_price: BigUint,
     ) -> SCResult<()> {
-        unimplemented!()
+        let matcher_fee =
+            BigUint::from(order.matcher_fee) * filled_amount.clone() / BigUint::from(order.amount); // TODO: Check how these operations are handled
+        let (total_filled, total_fees_paid) = sc_try!(self.get_filled_amounts(&order));
+
+        require!(&total_filled + &filled_amount <= order.amount, "E3");
+        require!(&total_fees_paid + &matcher_fee <= order.matcher_fee, "E3");
+
+        let status = if total_filled.clone() + filled_amount.clone() < order.amount
+            && self.get_order_trades(&order_hash).len() > 1
+        {
+            OrderStatus::PartiallyFilled
+        } else if total_filled + filled_amount.clone() == order.amount {
+            OrderStatus::Filled
+        } else {
+            OrderStatus::New
+        };
+
+        self.set_order_status(&order_hash, &status);
+
+        let mut order_trades = self.get_order_trades(&order_hash);
+        order_trades.push(Trade::new(
+            filled_price,
+            filled_amount,
+            matcher_fee,
+            self.get_block_timestamp(),
+        ));
+        self.set_order_trades(&order_hash, &order_trades);
+
+        self.events().order_update(&order_hash.into(), &order.sender_address, &status);
+
+        Ok(())
     }
 
     /*---------------------------------*/
