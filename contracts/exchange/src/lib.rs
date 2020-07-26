@@ -4,7 +4,7 @@
 #![allow(non_snake_case)]
 imports!();
 
-use common::{require, Bytes32};
+use common::{require};
 
 mod events;
 mod order;
@@ -25,18 +25,18 @@ static ERD_ASSET_ADDRESS: [u8; 32] = [0; 32];
 pub trait OrionExchange {
     /*------  Contract state  -------*/
 
-    // Mapping: (order_hash: Bytes32) => (orderStatus)
+    // Mapping: (order_hash: H256) => (orderStatus)
     #[view(getOrderStatus)]
     #[storage_get("order_status")]
-    fn get_order_status(&self, order_hash: &Bytes32) -> OrderStatus;
+    fn get_order_status(&self, order_hash: &H256) -> OrderStatus;
     #[storage_set("order_status")]
-    fn set_order_status(&self, order_hash: &Bytes32, status: &OrderStatus);
+    fn set_order_status(&self, order_hash: &H256, status: &OrderStatus);
 
-    // Mapping: (order_hash: Bytes32) => (Vec<Trade>)
+    // Mapping: (order_hash: H256) => (Vec<Trade>)
     #[storage_get("order_trades")]
-    fn get_order_trades(&self, order_hash: &Bytes32) -> Vec<Trade<BigUint>>;
+    fn get_order_trades(&self, order_hash: &H256) -> Vec<Trade<BigUint>>;
     #[storage_set("order_trades")]
-    fn set_order_trades(&self, order_hash: &Bytes32, trades: &Vec<Trade<BigUint>>);
+    fn set_order_trades(&self, order_hash: &H256, trades: &Vec<Trade<BigUint>>);
 
     // Mapping: (user_address: Address, asset_address: Address) => BigUInt
     #[view(getBalance)]
@@ -75,7 +75,7 @@ pub trait OrionExchange {
     }
 
     #[view(isOrderCancelled)]
-    fn is_order_cancelled(&self, order_hash: &Bytes32) -> bool {
+    fn is_order_cancelled(&self, order_hash: &H256) -> bool {
         let order_status = self.get_order_status(order_hash);
         match order_status {
             OrderStatus::Cancelled | OrderStatus::PartiallyCancelled => false,
@@ -220,7 +220,7 @@ pub trait OrionExchange {
         }
 
         self.events().order_update(
-            &order_hash.into(),
+            &order_hash,
             &caller,
             &self.get_order_status(&order_hash),
         );
@@ -286,9 +286,9 @@ pub trait OrionExchange {
     }
 
     #[inline]
-    fn hash_order(&self, order: &Order<BigUint>) -> SCResult<Bytes32> {
+    fn hash_order(&self, order: &Order<BigUint>) -> SCResult<H256> {
         if let Result::Ok(order_bytes) = order.top_encode() {
-            Ok(self.keccak256(order_bytes.as_slice()))
+            Ok(self.keccak256(order_bytes.as_slice()).into())
         } else {
             sc_error!("Error serializing order")
         }
@@ -333,7 +333,7 @@ pub trait OrionExchange {
     #[inline]
     fn update_trade(
         &self,
-        order_hash: &Bytes32,
+        order_hash: &H256,
         order: Order<BigUint>,
         filled_amount: BigUint,
         filled_price: BigUint,
@@ -366,7 +366,7 @@ pub trait OrionExchange {
         self.set_order_trades(&order_hash, &order_trades);
 
         self.events()
-            .order_update(&order_hash.into(), &order.sender_address, &status);
+            .order_update(&order_hash, &order.sender_address, &status);
 
         Ok(())
     }

@@ -28,6 +28,6 @@ pub trait EventsModule {
     );
 
     #[event("0x0000000000000000000000000000000000000000000000000000000000000004")]
-    fn order_update(&self, order_hash: &Address, user: &Address, status: &OrderStatus);
+    fn order_update(&self, order_hash: &H256, user: &Address, status: &OrderStatus);
     // cannot use Bytes32 in event. Bug?
 }

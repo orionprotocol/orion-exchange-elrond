@@ -6,8 +6,6 @@ imports!();
 static INVALID_ORDER: &str = "Invalid Order Info";
 static ORDER_CANCELLED_OR_EXPIRED: &str = "Order cancelled or expired";
 
-use crate::Bytes32;
-
 #[derive(Clone)]
 pub enum OrderSide {
     Buy,
@@ -56,7 +54,7 @@ pub struct Order<BigUint: BigUintApi> {
     pub nonce: BigUint,
     pub expiration: u64,
     pub side: OrderSide,
-    pub signature: Bytes32,
+    pub signature: H256,
 }
 
 impl<BigUint: BigUintApi> Encode for Order<BigUint> {
@@ -90,7 +88,7 @@ impl<BigUint: BigUintApi> Decode for Order<BigUint> {
             nonce: BigUint::dep_decode(input)?,
             expiration: u64::dep_decode(input)?,
             side: OrderSide::dep_decode(input)?,
-            signature: Bytes32::dep_decode(input)?,
+            signature: H256::dep_decode(input)?,
         })
     }
 }

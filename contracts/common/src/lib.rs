@@ -22,5 +22,3 @@ macro_rules! require {
 		}
 	};
 }
-
-pub type Bytes32 = [u8; 32];
