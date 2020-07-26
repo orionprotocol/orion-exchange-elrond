@@ -13,7 +13,12 @@ pub struct Trade<BigUint: BigUintApi> {
 }
 
 impl<BigUint: elrond_wasm::BigUintApi> Trade<BigUint> {
-    pub fn new(filled_price: BigUint, filled_amount: BigUint, fee_paid: BigUint, timestamp: u64) -> Self {
+    pub fn new(
+        filled_price: BigUint,
+        filled_amount: BigUint,
+        fee_paid: BigUint,
+        timestamp: u64,
+    ) -> Self {
         Self {
             filled_price,
             filled_amount,

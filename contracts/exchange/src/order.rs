@@ -8,6 +8,7 @@ static ORDER_CANCELLED_OR_EXPIRED: &str = "Order cancelled or expired";
 
 use crate::Bytes32;
 
+#[derive(Clone)]
 pub enum OrderSide {
     Buy,
     Sell,
@@ -42,6 +43,7 @@ impl Decode for OrderSide {
     }
 }
 
+#[derive(Clone)]
 pub struct Order<BigUint: BigUintApi> {
     pub sender_address: Address,
     pub matcher_address: Address,
@@ -52,7 +54,7 @@ pub struct Order<BigUint: BigUintApi> {
     pub price: BigUint,
     pub matcher_fee: BigUint,
     pub nonce: BigUint,
-    pub expiration: BigUint,
+    pub expiration: u64,
     pub side: OrderSide,
     pub signature: Bytes32,
 }
@@ -86,7 +88,7 @@ impl<BigUint: BigUintApi> Decode for Order<BigUint> {
             price: BigUint::dep_decode(input)?,
             matcher_fee: BigUint::dep_decode(input)?,
             nonce: BigUint::dep_decode(input)?,
-            expiration: BigUint::dep_decode(input)?,
+            expiration: u64::dep_decode(input)?,
             side: OrderSide::dep_decode(input)?,
             signature: Bytes32::dep_decode(input)?,
         })
@@ -105,7 +107,7 @@ impl<BigUint: BigUintApi> Order<BigUint> {
         sender: &Address,
         filled_amount: BigUint,
         filled_price: BigUint,
-        current_time: BigUint,
+        current_time: u64,
     ) -> SCResult<()> {
         sc_try!(buy_order.validate());
         sc_try!(sell_order.validate());

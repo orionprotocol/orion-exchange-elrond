@@ -19,7 +19,6 @@ use order_status::OrderStatus;
 use token_proxy::TransferFrom;
 use trade::Trade;
 
-
 // ERD by convention is stored at the asset address of all zero in the asset_balance map
 static ERD_ASSET_ADDRESS: [u8; 32] = [0; 32];
 
@@ -145,19 +144,66 @@ pub trait OrionExchange {
     #[endpoint(fillOrders)]
     fn fill_orders(
         &self,
-        buy_order: &Order<BigUint>,
-        sell_order: &Order<BigUint>,
-        filled_price: &BigUint,
-        filled_amount: &BigUint,
+        buy_order: Order<BigUint>,
+        sell_order: Order<BigUint>,
+        filled_price: BigUint,
+        filled_amount: BigUint,
     ) -> SCResult<()> {
-        // unimplemented!()
-        let ammount_quote = filled_amount * filled_price;
+        let amount_quote = filled_amount.clone() * filled_price.clone();
 
-        let buy_order_hash = sc_try!(self.hash_order(buy_order));
-        let sell_order_hash = sc_try!(self.hash_order(sell_order));
+        let buy_order_hash = sc_try!(self.hash_order(&buy_order));
+        let sell_order_hash = sc_try!(self.hash_order(&sell_order));
+
+        sc_try!(Order::check_orders_info(
+            &buy_order,
+            &sell_order,
+            &self.get_caller(),
+            filled_amount.clone(),
+            filled_price.clone(),
+            self.get_block_timestamp()
+        ));
+
+        require!(!self.is_order_cancelled(&buy_order_hash), "E4");
+        require!(!self.is_order_cancelled(&sell_order_hash), "E4");
+
+        // state updates
+        self.update_order_balance(
+            buy_order.clone(),
+            filled_amount.clone(),
+            amount_quote.clone(),
+            true,
+        );
+        self.update_order_balance(
+            sell_order.clone(),
+            filled_amount.clone(),
+            amount_quote.clone(),
+            false,
+        );
+
+        self.update_trade(
+            &buy_order_hash,
+            buy_order.clone(),
+            filled_amount.clone(),
+            filled_price.clone(),
+        );
+        self.update_trade(
+            &sell_order_hash,
+            sell_order.clone(),
+            filled_amount.clone(),
+            filled_price.clone(),
+        );
+
+        self.events().new_trade(
+            &buy_order.sender_address,
+            &sell_order.sender_address,
+            &buy_order.base_asset,
+            &buy_order.quote_asset,
+            &filled_price,
+            &filled_amount,
+            &amount_quote,
+        );
 
         Ok(())
-
     }
 
     #[endpoint(cancelOrder)]
@@ -279,7 +325,8 @@ pub trait OrionExchange {
 
         // deduct the fees and transfer to matcher
         {
-            let mut matcher_fee_asset_balance = self.get_asset_balance_mut(&user, &order.matcher_fee_asset);
+            let mut matcher_fee_asset_balance =
+                self.get_asset_balance_mut(&user, &order.matcher_fee_asset);
             *matcher_fee_asset_balance -= matcher_fee;
         }
         // TODO: Implement transfer of fees to matcher once there is a nicer tranfer function
@@ -294,8 +341,7 @@ pub trait OrionExchange {
         filled_amount: BigUint,
         filled_price: BigUint,
     ) -> SCResult<()> {
-        let matcher_fee =
-            order.matcher_fee.clone() * filled_amount.clone() / order.amount.clone(); // TODO: Check how these operations are handled
+        let matcher_fee = order.matcher_fee.clone() * filled_amount.clone() / order.amount.clone(); // TODO: Check how these operations are handled
         let (total_filled, total_fees_paid) = sc_try!(self.get_filled_amounts(&order));
 
         require!(&total_filled + &filled_amount <= order.amount, "E3");
@@ -322,7 +368,8 @@ pub trait OrionExchange {
         ));
         self.set_order_trades(&order_hash, &order_trades);
 
-        self.events().order_update(&order_hash.into(), &order.sender_address, &status);
+        self.events()
+            .order_update(&order_hash.into(), &order.sender_address, &status);
 
         Ok(())
     }
