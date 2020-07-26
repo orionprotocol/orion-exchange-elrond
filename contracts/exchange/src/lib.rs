@@ -2,7 +2,6 @@
 #![no_main]
 #![allow(unused_attributes)]
 #![allow(non_snake_case)]
-#![allow(unused_variables)] // TODO: Remove this once stubs are written
 imports!();
 
 use common::{require, Bytes32};
@@ -41,16 +40,9 @@ pub trait OrionExchange {
 
     // Mapping: (user_address: Address, asset_address: Address) => BigUInt
     #[view(getBalance)]
-    #[storage_get("asset_balance")]
-    fn get_asset_balance(&self, asset_address: &Address, user_address: &Address) -> BigUint;
     #[storage_get_mut("asset_balance")]
-    fn get_asset_balance_mut(
-        &self,
-        asset_address: &Address,
-        user_address: &Address,
-    ) -> mut_storage!(BigUint);
-    #[storage_set("asset_balance")]
-    fn set_asset_balance(&self, asset_address: &Address, user_address: &Address, balance: BigUint);
+    fn get_asset_balance(&self, asset_address: &Address, user_address: &Address) -> mut_storage!(BigUint);
+
 
     /*----------  views  ----------*/
 
@@ -58,7 +50,7 @@ pub trait OrionExchange {
     fn get_balances(&self, asset_addresses: &Vec<Address>, user_address: &Address) -> Vec<BigUint> {
         asset_addresses
             .iter()
-            .map(|asset_address| self.get_asset_balance(asset_address, user_address))
+            .map(|asset_address| self.get_asset_balance(asset_address, user_address).clone())
             .collect()
     }
 
@@ -235,7 +227,7 @@ pub trait OrionExchange {
         Ok(())
     }
 
-    /*----------  callbacks  ----------*/
+    /*----------  callbacks (used internally)  ----------*/
 
     #[callback]
     fn asset_deposit_callback(
@@ -265,32 +257,35 @@ pub trait OrionExchange {
 
     /*----------  internal  ----------*/
 
+    #[inline]
     fn asset_deposit(
         &self,
         asset_address: &Address,
         account_address: &Address,
         amount: &BigUint,
     ) -> SCResult<()> {
-        let mut balance = self.get_asset_balance_mut(asset_address, &account_address);
+        let mut balance = self.get_asset_balance(asset_address, &account_address);
         *balance += amount; // this will be safely updated after the function ends according to Elrond docs
         self.events()
             .new_asset_deposit(&account_address, asset_address, amount); // event
         Ok(())
     }
 
+    #[inline]
     fn asset_withdrawl(
         &self,
         asset_address: &Address,
         account_address: &Address,
         amount: &BigUint,
     ) -> SCResult<()> {
-        let mut balance = self.get_asset_balance_mut(asset_address, account_address);
+        let mut balance = self.get_asset_balance(asset_address, account_address);
         *balance -= amount;
         self.events()
             .new_asset_withdrawl(account_address, asset_address, amount);
         Ok(())
     }
 
+    #[inline]
     fn hash_order(&self, order: &Order<BigUint>) -> SCResult<Bytes32> {
         if let Result::Ok(order_bytes) = order.top_encode() {
             Ok(self.keccak256(order_bytes.as_slice()))
@@ -299,6 +294,7 @@ pub trait OrionExchange {
         }
     }
 
+    #[inline]
     fn update_order_balance(
         &self,
         order: Order<BigUint>,
@@ -311,8 +307,8 @@ pub trait OrionExchange {
             BigUint::from(order.matcher_fee) * filled_amount.clone() / BigUint::from(order.amount); // TODO: Check how these operations are handled
 
         {
-            let mut quote_asset_balance = self.get_asset_balance_mut(&user, &order.quote_asset);
-            let mut base_asset_balance = self.get_asset_balance_mut(&user, &order.base_asset);
+            let mut quote_asset_balance = self.get_asset_balance(&user, &order.quote_asset);
+            let mut base_asset_balance = self.get_asset_balance(&user, &order.base_asset);
 
             if is_buyer {
                 *quote_asset_balance -= amount_quote;
@@ -326,7 +322,7 @@ pub trait OrionExchange {
         // deduct the fees and transfer to matcher
         {
             let mut matcher_fee_asset_balance =
-                self.get_asset_balance_mut(&user, &order.matcher_fee_asset);
+                self.get_asset_balance(&user, &order.matcher_fee_asset);
             *matcher_fee_asset_balance -= matcher_fee;
         }
         // TODO: Implement transfer of fees to matcher once there is a nicer tranfer function
@@ -334,6 +330,7 @@ pub trait OrionExchange {
         Ok(())
     }
 
+    #[inline]
     fn update_trade(
         &self,
         order_hash: &Bytes32,

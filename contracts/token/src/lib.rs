@@ -34,18 +34,6 @@ pub trait Token {
     #[storage_set("owner")]
     fn set_owner(&self, owner: &Address);
 
-    #[storage_get("minters")]
-    fn get_is_minter(&self, account: &Address) -> bool;
-    #[storage_set("minters")]
-    fn set_is_minter(&self, account: &Address, is_minter: bool);
-
-    /*----------  views  ----------*/
-    
-    #[view(isMinter)]
-    fn is_minter(&self, account: &Address) -> bool {
-        self.get_is_minter(account)
-    }
-
     /*----------  public  ----------*/
 
     #[endpoint]
@@ -80,12 +68,6 @@ pub trait Token {
             let mut recipient_balance = self.get_mut_balance(&recipient);
             *recipient_balance += amount; // saved automatically at the end of scope
         }
-        Ok(())
-    }
-
-    #[endpoint(addMinter)]
-    fn add_minter(&self, account: &Address) -> SCResult<()> {
-        self.set_is_minter(account, true);
         Ok(())
     }
 
@@ -124,6 +106,5 @@ pub trait Token {
     fn init(&self) {
         let creator = self.get_caller();
         self.set_owner(&creator);
-        self.set_is_minter(&creator, true);
     }
 }
