@@ -1,0 +1,16 @@
+{
+    "name": "init-exchange",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "''agent_a_address_______________s1": {
+                    "nonce": "0",
+                    "balance": "1000",
+                    "storage": {},
+                    "code": ""
+                }
+            }
+        }
+    ]
+}

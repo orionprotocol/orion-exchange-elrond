@@ -1,21 +1,29 @@
  {
 	"name": "depost token",
 	"steps": [
-		{
-			"step": "externalSteps",
-			"path": "../init-single-agent.steps.json"
-		},
+        {
+            "step": "externalSteps",
+            "path": "../init-agent-1.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-token-with-allowance.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-exchange.steps.json"
+        },
 		{
 			"step": "scCall",
 			"txId": "deposit_asset-1",
 			"tx": {
-				"from": "''node_address__________________s1",
+				"from": "''agent_a_address_______________s1",
 				"to": "''exchange_contract_____________s1",
 				"value": "0",
 				"function": "depositAsset",
 				"arguments": [
 					"''wbtc_contract_________________s1",
-					"200"
+					"1001"
 				],
 				"gasLimit": "100,000,000",
 				"gasPrice": "0"
@@ -30,8 +38,8 @@
         {
           "step": "checkState",
             "accounts": {
-                "''node_address__________________s1": {
-                    "nonce": "2",
+                "''agent_a_address_______________s1": {
+                    "nonce": "1",
                     "balance": "1000",
                     "storage": "*",
                     "code": ""

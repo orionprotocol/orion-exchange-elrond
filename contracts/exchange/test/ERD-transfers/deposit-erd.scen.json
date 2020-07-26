@@ -1,15 +1,19 @@
 {
 	"name": "depost ERD",
 	"steps": [
-		{
-			"step": "externalSteps",
-			"path": "../init-single-agent.steps.json"
-		},
+        {
+            "step": "externalSteps",
+            "path": "../init-agent-1.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-exchange.steps.json"
+        },
 		{
 		  "step": "scCall",
 		  "txId": "depositERD-1",
 		  "tx": {
-	      "from": "''node_address__________________s1",
+	      "from": "''agent_a_address_______________s1",
 	      "to": "''exchange_contract_____________s1",
 	      "value": "20",
 	      "function": "depositERD",
@@ -26,7 +30,7 @@
                 "address": "''exchange_contract_____________s1",
                 "identifier": "0x0000000000000000000000000000000000000000000000000000000000000001",
                 "topics": [
-                    "''node_address__________________s1",
+                    "''agent_a_address_______________s1",
                     "0x0000000000000000000000000000000000000000000000000000000000000000"
                 ],
                 "data": "20" 
@@ -37,8 +41,8 @@
         {
           "step": "checkState",
             "accounts": {
-                "''node_address__________________s1": {
-                    "nonce": "2",
+                "''agent_a_address_______________s1": {
+                    "nonce": "1",
                     "balance": "980",
                     "storage": "*",
                     "code": ""
@@ -46,7 +50,7 @@
                 "''exchange_contract_____________s1": {
                     "nonce": "0",
                     "storage": {
-                      "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''node_address__________________s1" : "20"
+                      "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''agent_a_address_______________s1" : "20"
                     },
                     "balance": "20",
                     "code": "file:../../output/orion-exchange-elrond.wasm"        

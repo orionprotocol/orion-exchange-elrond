@@ -15,7 +15,7 @@
                 "function": "withdraw",
                 "arguments": [
                     "''wbtc_contract_________________s1",
-                    "100"
+                    "201"
                 ],
                 "gasLimit": "100,000,000",
                 "gasPrice": "0"
@@ -24,26 +24,7 @@
                 "status": "0",
                 "gas": "*",
                 "refund": "*",
-                "logs": [
-                    {
-                        "address": "''wbtc_contract_________________s1",
-                        "identifier": "0x0000000000000000000000000000000000000000000000000000000000000001",
-                        "topics": [
-                            "''exchange_contract_____________s1",
-                            "''agent_a_address_______________s1"
-                        ],
-                        "data": "100"
-                    },
-                    {
-                        "address": "''exchange_contract_____________s1",
-                        "identifier": "0x0000000000000000000000000000000000000000000000000000000000000002",
-                        "topics": [
-                            "''agent_a_address_______________s1",
-                            "''wbtc_contract_________________s1"
-                        ],
-                        "data": "100"
-                    }
-                ]
+                "logs": []
             }
         },
         {
@@ -58,7 +39,7 @@
                 "''exchange_contract_____________s1": {
                     "nonce": "0",
                     "storage": {
-                      "''asset_balance|''wbtc_contract_________________s1|''agent_a_address_______________s1" : "100"
+                      "''asset_balance|''wbtc_contract_________________s1|''agent_a_address_______________s1" : "200"
                     },
                     "balance": "0",
                     "code": "file:../../output/orion-exchange-elrond.wasm"        
@@ -68,8 +49,8 @@
                     "balance": "0",
                     "storage": {
                         "''total_supply": "1,000,000",
-                        "''balance|''exchange_contract_____________s1" : "100",
-                        "''balance|''agent_a_address_______________s1" : "900",
+                        "''balance|''exchange_contract_____________s1" : "200",
+                        "''balance|''agent_a_address_______________s1" : "800",
                         "''allowance|''agent_a_address_______________s1|''exchange_contract_____________s1" : "800"
                     },
                     "code": "file:../../../token/output/orion-token-elrond.wasm"

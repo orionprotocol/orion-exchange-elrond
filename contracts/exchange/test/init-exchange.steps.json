@@ -1,0 +1,16 @@
+{
+    "name": "init-exchange",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "''exchange_contract_____________s1": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {},
+                    "code": "file:../output/orion-exchange-elrond.wasm"
+                }
+            }
+        }
+    ]
+}

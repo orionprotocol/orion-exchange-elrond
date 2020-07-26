@@ -2,49 +2,16 @@
     "name": "init",
     "steps": [
         {
-            "step": "setState",
-            "accounts": {
-                "''node_address__________________s1": {
-                    "nonce": "0",
-                    "balance": "1000",
-                    "storage": {},
-                    "code": ""
-                },
-                "''wbtc_contract_________________s1": {
-                    "nonce": "0",
-                    "balance": "0",
-                    "storage": {
-                        "''total_supply": "1000"
-                    },
-                    "code": "file:../../token/output/orion-token-elrond.wasm"
-                }
-            },
-            "newAddresses": [
-                {
-                    "creatorAddress": "''node_address__________________s1",
-                    "creatorNonce": "0",
-                    "newAddress": "''exchange_contract_____________s1"
-                }
-            ]
+            "step": "externalSteps",
+            "path": "./init-agent-1.steps.json"
         },
         {
-            "step": "scDeploy",
-            "txId": "deploy-1",
-            "tx": {
-                "from": "''node_address__________________s1",
-                "value": "0",
-                "contractCode": "file:../output/orion-exchange-elrond.wasm",
-                "arguments": [],
-                "gasLimit": "1,000,000",
-                "gasPrice": "0"
-            },
-            "expect": {
-                "out": [],
-                "status": "",
-                "logs": [],
-                "gas": "*",
-                "refund": "*"
-            }
+            "step": "externalSteps",
+            "path": "./init-token.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-exchange.steps.json"
         }
     ]
 }

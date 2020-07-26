@@ -9,7 +9,7 @@
 		  "step": "scCall",
 		  "txId": "withdrawERD-1",
 		  "tx": {
-	      "from": "''node_address__________________s1",
+	      "from": "''agent_a_address_______________s1",
 	      "to": "''exchange_contract_____________s1",
 	      "value": "0",
 	      "function": "withdraw",
@@ -31,8 +31,8 @@
     {
       "step": "checkState",
         "accounts": {
-            "''node_address__________________s1": {
-                "nonce": "3",
+            "''agent_a_address_______________s1": {
+                "nonce": "2",
                 "balance": "980",
                 "storage": "*",
                 "code": ""
@@ -40,7 +40,7 @@
             "''exchange_contract_____________s1": {
                 "nonce": "0",
                 "storage": {
-                  "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''node_address__________________s1" : "20"
+                  "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''agent_a_address_______________s1" : "20"
                 },
                 "balance": "20",
                 "code": "file:../../output/orion-exchange-elrond.wasm"             

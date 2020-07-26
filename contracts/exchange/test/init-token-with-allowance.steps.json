@@ -1,0 +1,20 @@
+{
+    "name": "init-exchange",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "''wbtc_contract_________________s1": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {
+                        "''total_supply": "1,000,000",
+                        "''balance|''agent_a_address_______________s1": "1000",
+                        "''allowance|''agent_a_address_______________s1|''exchange_contract_____________s1": "1000"
+                    },
+                    "code": "file:../../token/output/orion-token-elrond.wasm"
+                }
+            }
+        }
+    ]
+}

@@ -1,38 +1,23 @@
  {
 	"name": "depost token",
 	"steps": [
-		{
-			"step": "externalSteps",
-			"path": "../init-single-agent.steps.json"
-		},
-		{
-            "step": "setState",
-            "comment": "Set up the token contract so the agent has 1000 tokens and authiorizes the exchange contract to transfer it",
-            "accounts": {
-                "''wbtc_contract_________________s1": {
-                    "nonce": "0",
-                    "balance": "0",
-                    "storage": {
-                        "''total_supply": "1000",
-                        "''balance|''node_address__________________s1": "1000",
-                        "''allowance|''node_address__________________s1|''exchange_contract_____________s1": "1000"
-                    },
-                    "code": "file:../../../token/output/orion-token-elrond.wasm"
-                }
-            },
-            "newAddresses": [
-                {
-                    "creatorAddress": "''node_address__________________s1",
-                    "creatorNonce": "0",
-                    "newAddress": "''exchange_contract_____________s1"
-                }
-            ]
+        {
+            "step": "externalSteps",
+            "path": "../init-agent-1.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-token-with-allowance.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-exchange.steps.json"
         },
 		{
 			"step": "scCall",
 			"txId": "deposit_asset-1",
 			"tx": {
-				"from": "''node_address__________________s1",
+				"from": "''agent_a_address_______________s1",
 				"to": "''exchange_contract_____________s1",
 				"value": "0",
 				"function": "depositAsset",
@@ -52,7 +37,7 @@
 						"address": "''wbtc_contract_________________s1",
 						"identifier": "0x0000000000000000000000000000000000000000000000000000000000000001",
 						"topics": [
-							"''node_address__________________s1",
+							"''agent_a_address_______________s1",
 							"''exchange_contract_____________s1"
 						],
 						"data": "200"
@@ -61,7 +46,7 @@
 		                "address": "''exchange_contract_____________s1",
 		                "identifier": "0x0000000000000000000000000000000000000000000000000000000000000001",
 		                "topics": [
-							"''node_address__________________s1",
+							"''agent_a_address_______________s1",
 							"''wbtc_contract_________________s1"
 		                ],
 		                "data": "200" 
@@ -72,8 +57,8 @@
         {
           "step": "checkState",
             "accounts": {
-                "''node_address__________________s1": {
-                    "nonce": "2",
+                "''agent_a_address_______________s1": {
+                    "nonce": "1",
                     "balance": "1000",
                     "storage": "*",
                     "code": ""
@@ -81,7 +66,7 @@
                 "''exchange_contract_____________s1": {
                     "nonce": "0",
                     "storage": {
-                      "''asset_balance|''wbtc_contract_________________s1|''node_address__________________s1" : "200"
+                      "''asset_balance|''wbtc_contract_________________s1|''agent_a_address_______________s1" : "200"
                     },
                     "balance": "0",
                     "code": "file:../../output/orion-exchange-elrond.wasm"        
