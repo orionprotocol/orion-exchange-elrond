@@ -1,0 +1,21 @@
+{
+    "name": "init-exchange",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "''exchange_contract_____________s1": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {
+                        "''asset_balance|''0x0000000000000000000000000000000000000000000000000000000000000000|''agent_a_address_______________s1|": 1000,
+                        "''asset_balance|''0x0000000000000000000000000000000000000000000000000000000000000000|''agent_b_address_______________s1|": 1000,
+                        "''asset_balance|''wbtc_contract_________________s1|''agent_a_address_______________s1|": 100,
+                        "''asset_balance|''wbtc_contract_________________s1|''agent_b_address_______________s1|": 100
+                    },
+                    "code": "file:../output/orion-exchange-elrond.wasm"
+                }
+            }
+        }
+    ]
+}

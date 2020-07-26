@@ -1,0 +1,45 @@
+ {
+	"name": "depost token",
+	"steps": [
+        {
+            "step": "externalSteps",
+            "path": "../init-agent-1.steps.json"
+        },
+        {
+            "step": "externalSteps",
+            "path": "./init-exchange.steps.json"
+        },
+		{
+			"step": "scCall",
+			"txId": "validateOrder-1",
+			"tx": {
+				"from": "''agent_a_address_______________s1",
+				"to": "''exchange_contract_____________s1",
+				"value": "0",
+				"function": "validateOrder",
+				"arguments": [
+					"''agent_a_address_______________s1",
+					"''agent_a_address_______________s1",
+					"0x0000000000000000000000000000000000000000000000000000000000000000",
+					"''wbtc_contract_________________s1",
+					"0x0000000000000000000000000000000000000000000000000000000000000000",
+					"1000",
+					"10",
+					"55",
+					"0",
+					"0",
+					"0",
+					"0x0000000000000000000000000000000000000000000000000000000000000000"
+				],
+				"gasLimit": "100,000,000",
+				"gasPrice": "0"
+			},
+			"expect": {
+				"status": "0",
+				"gas": "*",
+				"refund": "*",
+				"logs": []
+			}
+		}
+	]
+}

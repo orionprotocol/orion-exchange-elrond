@@ -202,7 +202,7 @@ pub trait OrionExchange {
     fn cancel_order(&self, order: &Order<BigUint>) -> SCResult<()> {
         let caller = self.get_caller();
         sc_try!(order.validate());
-        require!(order.sender_address == caller, "Not owner");
+        require!(order.sender_address == caller, "Only the owner of an order can cancel");
 
         let order_hash = sc_try!(self.hash_order(order));
 
@@ -304,7 +304,7 @@ pub trait OrionExchange {
     ) -> SCResult<()> {
         let user = order.sender_address;
         let matcher_fee =
-            BigUint::from(order.matcher_fee) * filled_amount.clone() / BigUint::from(order.amount); // TODO: Check how these operations are handled
+            order.matcher_fee * filled_amount.clone() / order.amount; // TODO: Check how these operations are handled
 
         {
             let mut quote_asset_balance = self.get_asset_balance(&user, &order.quote_asset);
