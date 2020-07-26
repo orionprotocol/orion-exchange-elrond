@@ -150,7 +150,14 @@ pub trait OrionExchange {
         filled_price: &BigUint,
         filled_amount: &BigUint,
     ) -> SCResult<()> {
-        unimplemented!()
+        // unimplemented!()
+        let ammount_quote = filled_amount * filled_price;
+
+        let buy_order_hash = sc_try!(self.hash_order(buy_order));
+        let sell_order_hash = sc_try!(self.hash_order(sell_order));
+
+        Ok(())
+
     }
 
     #[endpoint(cancelOrder)]
@@ -270,11 +277,12 @@ pub trait OrionExchange {
             }
         } // balances updated when scope ends
 
-        // TODO: Add handling of fee. Needs to be refinded to matcher address.
-        // Currently all trades are free.
-        // {
-        //     self.get_asset_balance_mut(&user, &order.matcher_fee_asset) -= matcher_fee;
-        // }
+        // deduct the fees and transfer to matcher
+        {
+            let mut matcher_fee_asset_balance = self.get_asset_balance_mut(&user, &order.matcher_fee_asset);
+            *matcher_fee_asset_balance -= matcher_fee;
+        }
+        // TODO: Implement transfer of fees to matcher once there is a nicer tranfer function
 
         Ok(())
     }
