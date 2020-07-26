@@ -52,7 +52,7 @@
                   "''asset_balance|0x0000000000000000000000000000000000000000000000000000000000000000|''node_address__________________s1" : "10"
                 },
                 "balance": "10",
-                "code": "file:../output/orion-exchange-elrond.wasm"             
+                "code": "file:../../output/orion-exchange-elrond.wasm"             
             },
             "+": ""
         }

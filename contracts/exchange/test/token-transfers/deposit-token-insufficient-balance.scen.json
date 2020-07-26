@@ -3,7 +3,7 @@
 	"steps": [
 		{
 			"step": "externalSteps",
-			"path": "init-single-agent.json"
+			"path": "../init-single-agent.steps.json"
 		},
 		{
 			"step": "scCall",
@@ -40,7 +40,7 @@
                     "nonce": "0",
                     "storage": {},
                     "balance": "0",
-                    "code": "file:../output/orion-exchange-elrond.wasm"        
+                    "code": "file:../../output/orion-exchange-elrond.wasm"        
                 },
                 "+": ""
             }

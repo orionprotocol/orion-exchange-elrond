@@ -42,22 +42,22 @@ impl Decode for OrderSide {
     }
 }
 
-pub struct Order {
+pub struct Order<BigUint: BigUintApi> {
     pub sender_address: Address,
     pub matcher_address: Address,
     pub base_asset: Address,
     pub quote_asset: Address,
     pub matcher_fee_asset: Address,
-    pub amount: u64,
-    pub price: u64,
-    pub matcher_fee: u64,
-    pub nonce: u64,
-    pub expiration: u64,
+    pub amount: BigUint,
+    pub price: BigUint,
+    pub matcher_fee: BigUint,
+    pub nonce: BigUint,
+    pub expiration: BigUint,
     pub side: OrderSide,
     pub signature: Bytes32,
 }
 
-impl Encode for Order {
+impl<BigUint: BigUintApi> Encode for Order<BigUint> {
     fn dep_encode_to<O: Output>(&self, dest: &mut O) -> Result<(), EncodeError> {
         self.sender_address.dep_encode_to(dest)?;
         self.matcher_address.dep_encode_to(dest)?;
@@ -74,7 +74,7 @@ impl Encode for Order {
     }
 }
 
-impl Decode for Order {
+impl<BigUint: BigUintApi> Decode for Order<BigUint> {
     fn dep_decode<I: Input>(input: &mut I) -> Result<Self, DecodeError> {
         Result::Ok(Order {
             sender_address: Address::dep_decode(input)?,
@@ -82,30 +82,30 @@ impl Decode for Order {
             base_asset: Address::dep_decode(input)?,
             quote_asset: Address::dep_decode(input)?,
             matcher_fee_asset: Address::dep_decode(input)?,
-            amount: u64::dep_decode(input)?,
-            price: u64::dep_decode(input)?,
-            matcher_fee: u64::dep_decode(input)?,
-            nonce: u64::dep_decode(input)?,
-            expiration: u64::dep_decode(input)?,
+            amount: BigUint::dep_decode(input)?,
+            price: BigUint::dep_decode(input)?,
+            matcher_fee: BigUint::dep_decode(input)?,
+            nonce: BigUint::dep_decode(input)?,
+            expiration: BigUint::dep_decode(input)?,
             side: OrderSide::dep_decode(input)?,
             signature: Bytes32::dep_decode(input)?,
         })
     }
 }
 
-impl Order {
+impl<BigUint: BigUintApi> Order<BigUint> {
     pub fn validate(&self) -> SCResult<()> {
         // TODO: Actually validate order signatures
         Ok(())
     }
 
     pub fn check_orders_info(
-        buy_order: &Order,
-        sell_order: &Order,
+        buy_order: &Order<BigUint>,
+        sell_order: &Order<BigUint>,
         sender: &Address,
-        filled_amount: u64,
-        filled_price: u64,
-        current_time: u64,
+        filled_amount: BigUint,
+        filled_price: BigUint,
+        current_time: BigUint,
     ) -> SCResult<()> {
         sc_try!(buy_order.validate());
         sc_try!(sell_order.validate());

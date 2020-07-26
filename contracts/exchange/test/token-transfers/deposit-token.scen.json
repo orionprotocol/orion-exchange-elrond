@@ -3,7 +3,7 @@
 	"steps": [
 		{
 			"step": "externalSteps",
-			"path": "init-single-agent.json"
+			"path": "../init-single-agent.steps.json"
 		},
 		{
             "step": "setState",
@@ -17,7 +17,7 @@
                         "''balance|''node_address__________________s1": "1000",
                         "''allowance|''node_address__________________s1|''exchange_contract_____________s1": "1000"
                     },
-                    "code": "file:../../token/output/orion-token-elrond.wasm"
+                    "code": "file:../../../token/output/orion-token-elrond.wasm"
                 }
             },
             "newAddresses": [
@@ -84,7 +84,7 @@
                       "''asset_balance|''wbtc_contract_________________s1|''node_address__________________s1" : "200"
                     },
                     "balance": "0",
-                    "code": "file:../output/orion-exchange-elrond.wasm"        
+                    "code": "file:../../output/orion-exchange-elrond.wasm"        
                 },
                 "+": ""
             }

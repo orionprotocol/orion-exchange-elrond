@@ -64,13 +64,13 @@ pub trait OrionExchange {
     }
 
     #[view(getOrderTrades)]
-    fn get_order_trades_public(&self, order: &Order) -> SCResult<Vec<Trade<BigUint>>> {
+    fn get_order_trades_public(&self, order: &Order<BigUint>) -> SCResult<Vec<Trade<BigUint>>> {
         let order_hash = sc_try!(self.hash_order(order));
         Ok(self.get_order_trades(&order_hash))
     }
 
     #[view(getFilledAmounts)]
-    fn get_filled_amounts(&self, order: &Order) -> SCResult<(BigUint, BigUint)> {
+    fn get_filled_amounts(&self, order: &Order<BigUint>) -> SCResult<(BigUint, BigUint)> {
         let order_hash = sc_try!(self.hash_order(order));
         Ok(self.get_order_trades(&order_hash).iter().fold(
             (BigUint::zero(), BigUint::zero()),
@@ -93,7 +93,7 @@ pub trait OrionExchange {
     }
 
     #[view(validateOrder)]
-    fn validate_order(&self, order: &Order) -> bool {
+    fn validate_order(&self, order: &Order<BigUint>) -> bool {
         match order.validate() {
             Ok(_) => true,
             _ => false,
@@ -145,8 +145,8 @@ pub trait OrionExchange {
     #[endpoint(fillOrders)]
     fn fill_orders(
         &self,
-        buy_order: &Order,
-        sell_order: &Order,
+        buy_order: &Order<BigUint>,
+        sell_order: &Order<BigUint>,
         filled_price: &BigUint,
         filled_amount: &BigUint,
     ) -> SCResult<()> {
@@ -161,7 +161,7 @@ pub trait OrionExchange {
     }
 
     #[endpoint(cancelOrder)]
-    fn cancel_order(&self, order: &Order) -> SCResult<()> {
+    fn cancel_order(&self, order: &Order<BigUint>) -> SCResult<()> {
         let caller = self.get_caller();
         sc_try!(order.validate());
         require!(order.sender_address == caller, "Not owner");
@@ -245,7 +245,7 @@ pub trait OrionExchange {
         Ok(())
     }
 
-    fn hash_order(&self, order: &Order) -> SCResult<Bytes32> {
+    fn hash_order(&self, order: &Order<BigUint>) -> SCResult<Bytes32> {
         if let Result::Ok(order_bytes) = order.top_encode() {
             Ok(self.keccak256(order_bytes.as_slice()))
         } else {
@@ -255,7 +255,7 @@ pub trait OrionExchange {
 
     fn update_order_balance(
         &self,
-        order: Order,
+        order: Order<BigUint>,
         filled_amount: BigUint,
         amount_quote: BigUint,
         is_buyer: bool,
@@ -290,12 +290,12 @@ pub trait OrionExchange {
     fn update_trade(
         &self,
         order_hash: &Bytes32,
-        order: Order,
+        order: Order<BigUint>,
         filled_amount: BigUint,
         filled_price: BigUint,
     ) -> SCResult<()> {
         let matcher_fee =
-            BigUint::from(order.matcher_fee) * filled_amount.clone() / BigUint::from(order.amount); // TODO: Check how these operations are handled
+            order.matcher_fee.clone() * filled_amount.clone() / order.amount.clone(); // TODO: Check how these operations are handled
         let (total_filled, total_fees_paid) = sc_try!(self.get_filled_amounts(&order));
 
         require!(&total_filled + &filled_amount <= order.amount, "E3");
