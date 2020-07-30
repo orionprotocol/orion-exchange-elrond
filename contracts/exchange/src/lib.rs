@@ -159,31 +159,31 @@ pub trait OrionExchange {
         require!(!self.is_order_cancelled(&sell_order_hash), "E4");
 
         // state updates
-        self.update_order_balance(
+        sc_try!(self.update_order_balance(
             buy_order.clone(),
             filled_amount.clone(),
             amount_quote.clone(),
             true,
-        );
-        self.update_order_balance(
+        ));
+        sc_try!(self.update_order_balance(
             sell_order.clone(),
             filled_amount.clone(),
             amount_quote.clone(),
             false,
-        );
+        ));
 
-        self.update_trade(
+        sc_try!(self.update_trade(
             &buy_order_hash,
             buy_order.clone(),
             filled_amount.clone(),
             filled_price.clone(),
-        );
-        self.update_trade(
+        ));
+        sc_try!(self.update_trade(
             &sell_order_hash,
             sell_order.clone(),
             filled_amount.clone(),
             filled_price.clone(),
-        );
+        ));
 
         self.events().new_trade(
             &buy_order.sender_address,
@@ -236,9 +236,11 @@ pub trait OrionExchange {
         #[callback_arg] cb_asset_address: &Address,
         #[callback_arg] cb_account_address: &Address,
         #[callback_arg] cb_amount: BigUint,
-    ) {
+    ) -> elrond_wasm::SCResult<()> {
         if let AsyncCallResult::Ok(()) = call_result {
-            self.asset_deposit(cb_asset_address, cb_account_address, &cb_amount);
+            self.asset_deposit(cb_asset_address, cb_account_address, &cb_amount)
+        } else {
+            sc_error!("Error completing asset deposit")
         }
     }
 
@@ -249,9 +251,11 @@ pub trait OrionExchange {
         #[callback_arg] cb_asset_address: &Address,
         #[callback_arg] cb_account_address: &Address,
         #[callback_arg] cb_amount: BigUint,
-    ) {
+    ) -> elrond_wasm::SCResult<()>  {
         if let AsyncCallResult::Ok(()) = call_result {
-            self.asset_withdrawl(cb_asset_address, cb_account_address, &cb_amount);
+            self.asset_withdrawl(cb_asset_address, cb_account_address, &cb_amount)
+        } else {
+            sc_error!("Error completing asset withdrawl")
         }
     }
 
@@ -304,7 +308,7 @@ pub trait OrionExchange {
     ) -> SCResult<()> {
         let user = order.sender_address;
         let matcher_fee =
-            BigUint::from(order.matcher_fee) * filled_amount.clone() / BigUint::from(order.amount); // TODO: Check how these operations are handled
+            order.matcher_fee * filled_amount.clone() / order.amount; // TODO: Check how these operations are handled
 
         {
             let mut quote_asset_balance = self.get_asset_balance(&user, &order.quote_asset);
