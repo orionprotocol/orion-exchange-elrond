@@ -4,27 +4,10 @@ version = "0.1.0"
 authors = ["Willem Olding <willemolding@gmail.com>"]
 edition = "2018"
 
-[[bin]]
-name = "orion-exchange-elrond"
-path = "src/lib.rs"
-
-[[bin]]
-name = "orion-token-elrond"
-path = "src/lib.rs"
-
 [lib]
 path = "src/lib.rs"
-crate-type = ["cdylib"]
-
-[profile.release]
-codegen-units = 1
-opt-level = "z"
-lto = true
-debug = false
-panic = "abort"
 
 [dependencies]
-
 common = { path = "../common" }
 
 elrond-wasm = "0.6.0"
