@@ -4,6 +4,8 @@
 #![allow(non_snake_case)]
 imports!();
 
+pub use elrond_wasm_output::*;
+
 use common::{require};
 
 mod events;

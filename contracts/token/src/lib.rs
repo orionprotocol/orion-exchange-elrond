@@ -5,6 +5,8 @@
 
 imports!();
 
+pub use elrond_wasm_output::*;
+
 use common::require;
 
 #[elrond_wasm_derive::contract(TokenImpl)]

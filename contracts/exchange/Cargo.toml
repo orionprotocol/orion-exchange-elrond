@@ -4,18 +4,31 @@ version = "0.1.0"
 authors = ["Willem Olding <willemolding@gmail.com>"]
 edition = "2018"
 
-[lib]
-path = "src/lib.rs"
-
 [[bin]]
 name = "orion-exchange-elrond"
 path = "src/lib.rs"
+
+[[bin]]
+name = "orion-token-elrond"
+path = "src/lib.rs"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
 
 [dependencies]
 
 common = { path = "../common" }
 
-elrond-wasm = "0.5.5"
-elrond-wasm-node = "0.5.5"
-elrond-wasm-derive = "0.5.5"
-elrond-codec = "0.1.1"
+elrond-wasm = "0.6.0"
+elrond-wasm-node = "0.6.0"
+elrond-wasm-derive = "0.6.0"
+elrond-codec = "0.1.2"
+elrond-wasm-output = { version="0.6.0", features=["wasm-output-mode"]}
